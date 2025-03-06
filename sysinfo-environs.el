@@ -46,6 +46,8 @@
 
 ;;; Code:
 
+
+;;;; Helper functions
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
   "Splits a string into a lists of strings, counting
 `\n' (newlines) as dividers."
@@ -83,12 +85,16 @@ and makes it into a list of alists of the form:
                                (line-end-position))
                          (forward-line 1))))))
 
+;;;; Functions to create alists from various data sources
+
+;;;;; /etc/os-release
 (defun sysinfo-environs-parse-os-release ()
   "Parse the `/etc/os-release' file into an alist."
   (let ((os-release (sysinfo-environs-file-by-line-into-list "/etc/os-release")))
     (cons "*os-release info*"
           (sysinfo-environs-list-of-string-equals-string-into-alist os-release t))))
 
+;;;;; uname -?
 (defun sysinfo-environs-parse-uname-info ()
   "Create an alist from some `uname' outputs."
   (let ((params '(("KERNEL_SPECS" . "-v")
@@ -108,6 +114,7 @@ and makes it into a list of alists of the form:
                    uname-info)))
     (cons "*uname -?*" uname-info)))
 
+;;;;; from Emacs itself
 (defun sysinfo-environs-emacs-known-sysinfo ()
   "Creates an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
@@ -116,34 +123,43 @@ and makes it into a list of alists of the form:
           ("system-configuration" . ,system-configuration))))
     (cons "*emacs known sysinfo*" emacs-sysinfo)))
 
+;;;;; list of all sources
+(defvar sysinfo-environs-dataset-alist
+  '(("uname-info" . (sysinfo-environs-parse-uname-info))
+    ("os-release-info" . (sysinfo-environs-parse-os-release))
+    ("emacs-info" . (sysinfo-environs-emacs-known-sysinfo)))
+  "An alist of all of the datasources and some names for them.")
+
 ;; (sysinfo-environs-emacs-known-sysinfo)
 
+;;;; Main functions  for creating temp buffers with pretty org tables
+(defun sysinfo-environs-look-up-field (&optional dataset field)
+  "Return the value of a sysinfo `FIELD' from a given `DATASET' source.
 
-(defun sysinfo-environs-look-up-field (&optional type field)
-  "Return the value of a sysinfo field."
+Can be used interactively, will prompt user for `DATASET',
+listing from all possibilities from `sysinfo-environs-dataset-alist',
+and then listing all possible `FIELD's for chosen data source."
   (interactive)
-  (let* ((message-p (null (and type field)))
-         (type
+  (let* ((message-p (null (and dataset field)))
+         (dataset
           (cdr 
-           (or type
+           (or dataset
                (eval
-                (let ((choices '(("uname-info" . (sysinfo-environs-parse-uname-info))
-                                 ("os-release-info" . (sysinfo-environs-parse-os-release))))) 
                   (cdr
                    (assoc
                       (completing-read
-                       "Which type of info: "
+                       "Which dataset of info: "
                        (cl-loop for (key . _) in choices
                                 collect key))
-                      choices)))))))
+                      sysinfo-environs-dataset-alist))))))
     (field
-     (or (assoc field type) 
+     (or (assoc field dataset) 
                (assoc 
                 (completing-read
                  "Return value for field: "
-                 (cl-loop for (key . _) in type
+                 (cl-loop for (key . _) in dataset
                           collect key))
-                type)))
+                dataset)))
     (value
      (cdr field)))
     (if message-p
@@ -151,39 +167,12 @@ and makes it into a list of alists of the form:
       value)))
 
 
-
-(defun sysinfo-environs-os-release-info ()
-  "Interactive function to display `/etc/os-release' info."
-  (interactive)
-  (sysinfo-environs-sysinfo
-   (list 
-    (sysinfo-environs-parse-os-release))
-   "*OS Release Info*"))
-
-(defun sysinfo-environs-os-uname-info ()
-  "Interactive function to display `uname -?' info."
-  (interactive)
-  (sysinfo-environs-sysinfo
-   (list 
-    (sysinfo-environs-parse-uname-info))
-   "*OS uname Info*"))
-
-(defun sysinfo-environs-full-sys-info ()
-  "Interactive function to display all accessible system info."
-  (interactive)
-  (sysinfo-environs-sysinfo
-   (list
-    (sysinfo-environs-emacs-known-sysinfo)
-    (sysinfo-environs-parse-uname-info)
-    (sysinfo-environs-parse-os-release))
-   "*System Info*"))
-
 (defun sysinfo-environs-sysinfo (datasets &optional titlename)
   "Main function for creating temp buffers with Org tables
 containing system information.
 
 Should be called with a list of one or more `DATASETS'
-(see above interactive functions for examples), and an optional
+(see below interactive functions for examples), and an optional
 `TITLENAME' for the temp buffer."
   (let ((temp-buff-name (or titlename "*System Information*"))
         (logo-name nil)
@@ -256,6 +245,33 @@ Should be called with a list of one or more `DATASETS'
         (org-link-preview)
         (read-only-mode 1)
         (goto-char (point-min)))))
+
+;;;; Interactive functions
+(defun sysinfo-environs-os-release-info ()
+  "Interactive function to display `/etc/os-release' info."
+  (interactive)
+  (sysinfo-environs-sysinfo
+   (list 
+    (sysinfo-environs-parse-os-release))
+   "*OS Release Info*"))
+
+(defun sysinfo-environs-os-uname-info ()
+  "Interactive function to display `uname -?' info."
+  (interactive)
+  (sysinfo-environs-sysinfo
+   (list 
+    (sysinfo-environs-parse-uname-info))
+   "*OS uname Info*"))
+
+(defun sysinfo-environs-full-sys-info ()
+  "Interactive function to display all accessible system info."
+  (interactive)
+  (sysinfo-environs-sysinfo
+   (list
+    (sysinfo-environs-emacs-known-sysinfo)
+    (sysinfo-environs-parse-uname-info)
+    (sysinfo-environs-parse-os-release))
+   "*System Info*"))
 
 
 ;; (sysinfo-environs-os-release-info)
