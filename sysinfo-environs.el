@@ -47,9 +47,19 @@
 ;;; Code:
 
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
+  "Splits a string into a lists of strings, counting
+`\n' (newlines) as dividers."
  (split-string longstring "\n"))
 
 (defun sysinfo-environs-list-of-string-equals-string-into-alist (strings &optional quoted)
+  "Transform list of strings into an alist of `(label . value)'.
+
+Takes a list of strings which are of the form:
+NAME_MAYBE_WITH_UNDERSCORES=\"value\"
+
+and makes it into a list of alists of the form:
+`((LABEL1 . value1) (LABEL2 . value2) ....)'
+"
   (mapcar
    (lambda (x) (let ((field (split-string x "=")))
                  (cons
@@ -74,12 +84,13 @@
                          (forward-line 1))))))
 
 (defun sysinfo-environs-parse-os-release ()
-  "Parse the `/etc/os-release' file."
+  "Parse the `/etc/os-release' file into an alist."
   (let ((os-release (sysinfo-environs-file-by-line-into-list "/etc/os-release")))
     (cons "*os-release info*"
           (sysinfo-environs-list-of-string-equals-string-into-alist os-release t))))
 
 (defun sysinfo-environs-parse-uname-info ()
+  "Create an alist from some `uname' outputs."
   (let ((params '(("KERNEL_SPECS" . "-v")
                   ("KERNEL_RELEASE" . "-r")
                   ("KERNEL_NAME" . "-s")
@@ -98,6 +109,7 @@
     (cons "*uname -?*" uname-info)))
 
 (defun sysinfo-environs-emacs-known-sysinfo ()
+  "Creates an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
          `(("system-name" . ,system-name)
           ("system-type" . ,system-type)
@@ -106,31 +118,6 @@
 
 ;; (sysinfo-environs-emacs-known-sysinfo)
 
-(defun sysinfo-environs-split-paths-with-newlines (input)
-  (let ((new-alist nil))
-    (dolist (item input)
-      (setq new-alist
-            (cons
-             (cons
-              (car item)
-              (if (not (null (cdr item)))
-                       (replace-regexp-in-string ":" ":\n"
-                                                 (cdr item))
-                (cdr item)))
-             new-alist)))
-    new-alist))
-
-(defun sysinfo-environs-get-all-env ()
-  (cons "*environment variables*"
-        ;; (sysinfo-environs-split-paths-with-newlines
-         (sysinfo-environs-list-of-string-equals-string-into-alist
-          (sysinfo-environs-newlines-string-into-line-list
-           (shell-command-to-string "printenv"))))
-  ;; )
-)
-
-
-;; (sysinfo-environs-sysinfo (list (sysinfo-environs-get-all-env)q))
 
 (defun sysinfo-environs-look-up-field (&optional type field)
   "Return the value of a sysinfo field."
@@ -163,16 +150,10 @@
         (message value)
       value)))
 
-;; (defun sysinfo-environs-os-release-look-up-field (&optional field)
-;;   "Return the value of an os-release field `FIELD'."
-;;   (interactive)
-;;   (sysinfo-environs-look-up-field
-;;    (sysinfo-environs-parse-os-release)
-;;    (when field
-;;      field)))
 
 
 (defun sysinfo-environs-os-release-info ()
+  "Interactive function to display `/etc/os-release' info."
   (interactive)
   (sysinfo-environs-sysinfo
    (list 
@@ -180,6 +161,7 @@
    "*OS Release Info*"))
 
 (defun sysinfo-environs-os-uname-info ()
+  "Interactive function to display `uname -?' info."
   (interactive)
   (sysinfo-environs-sysinfo
    (list 
@@ -187,6 +169,7 @@
    "*OS uname Info*"))
 
 (defun sysinfo-environs-full-sys-info ()
+  "Interactive function to display all accessible system info."
   (interactive)
   (sysinfo-environs-sysinfo
    (list
@@ -196,6 +179,12 @@
    "*System Info*"))
 
 (defun sysinfo-environs-sysinfo (datasets &optional titlename)
+  "Main function for creating temp buffers with Org tables
+containing system information.
+
+Should be called with a list of one or more `DATASETS'
+(see above interactive functions for examples), and an optional
+`TITLENAME' for the temp buffer."
   (let ((temp-buff-name (or titlename "*System Information*"))
         (logo-name nil)
         (best-image nil))
@@ -271,3 +260,35 @@
 
 ;; (sysinfo-environs-os-release-info)
 
+;;; printenv things, probably not good
+(defun sysinfo-environs-split-paths-with-newlines (input)
+  (let ((new-alist nil))
+    (dolist (item input)
+      (setq new-alist
+            (cons
+             (cons
+              (car item)
+              (if (not (null (cdr item)))
+                       (replace-regexp-in-string ":" ":\n"
+                                                 (cdr item))
+                (cdr item)))
+             new-alist)))
+    new-alist))
+
+(defun sysinfo-environs-get-all-env ()
+  (cons "*environment variables*"
+        ;; (sysinfo-environs-split-paths-with-newlines
+         (sysinfo-environs-list-of-string-equals-string-into-alist
+          (sysinfo-environs-newlines-string-into-line-list
+           (shell-command-to-string "printenv")))))
+
+;; (sysinfo-environs-sysinfo (list (sysinfo-environs-get-all-env)q))
+
+;;; other old bits
+;; (defun sysinfo-environs-os-release-look-up-field (&optional field)
+;;   "Return the value of an os-release field `FIELD'."
+;;   (interactive)
+;;   (sysinfo-environs-look-up-field
+;;    (sysinfo-environs-parse-os-release)
+;;    (when field
+;;      field)))
