@@ -125,12 +125,23 @@ and makes it into a list of alists of the form:
 
 ;;;;; list of all sources
 (defvar sysinfo-environs-dataset-alist
-  '(("uname-info" . (sysinfo-environs-parse-uname-info))
-    ("os-release-info" . (sysinfo-environs-parse-os-release))
-    ("emacs-info" . (sysinfo-environs-emacs-known-sysinfo)))
+  '(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
+    ("uname-info" . (sysinfo-environs-parse-uname-info))
+    ("os-release-info" . (sysinfo-environs-parse-os-release)))
   "An alist of all of the datasources and some names for them.")
 
+(defun sysinfo-environs-dataset-bare-list ()
+  "Strips out the pretty names from `sysinfo-environs-dataset-alist'.
+For use in helper functions and elsewhere."
+  (let ((barelist nil))
+    (dolist (dataset sysinfo-environs-dataset-alist)
+      (setq barelist
+            (append (list (eval (list (cadr dataset))))
+                  barelist)))
+    barelist))
+
 ;; (sysinfo-environs-emacs-known-sysinfo)
+;; (sysinfo-environs-dataset-bare-list)
 
 ;;;; Main functions  for creating temp buffers with pretty org tables
 (defun sysinfo-environs-look-up-field (&optional dataset field)
@@ -263,14 +274,21 @@ Should be called with a list of one or more `DATASETS'
     (sysinfo-environs-parse-uname-info))
    "*OS uname Info*"))
 
+(defun sysinfo-environs-os-release-and-uname ()
+  "Interactive function to display all system information
+from os-release and uname."
+  (interactive)
+  (sysinfo-environs-sysinfo
+   (list
+    (sysinfo-environs-parse-uname-info)
+    (sysinfo-environs-parse-os-release))
+   "*System Info*"))
+
 (defun sysinfo-environs-full-sys-info ()
   "Interactive function to display all accessible system info."
   (interactive)
   (sysinfo-environs-sysinfo
-   (list
-    (sysinfo-environs-emacs-known-sysinfo)
-    (sysinfo-environs-parse-uname-info)
-    (sysinfo-environs-parse-os-release))
+   (sysinfo-environs-dataset-bare-list)
    "*System Info*"))
 
 
