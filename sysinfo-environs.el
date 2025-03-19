@@ -90,9 +90,44 @@ and makes it into a list of alists of the form:
 ;;;;; /etc/os-release
 (defun sysinfo-environs-parse-os-release ()
   "Parse the `/etc/os-release' file into an alist."
-  (let ((os-release (sysinfo-environs-file-by-line-into-list "/etc/os-release")))
-    (cons "*os-release info*"
-          (sysinfo-environs-list-of-string-equals-string-into-alist os-release t))))
+  (let* ((os-release-file
+          (cond ((file-exists-p "/etc/os-release")
+                 "/etc/os-release")
+                ((file-exists-p "/usr/lib/os-release")
+                 "/usr/lib/os-release")
+                (t nil)))
+         (os-release (when os-release-file
+                       (sysinfo-environs-file-by-line-into-list
+                        os-release-file))))
+         (let ((os-release-file (or os-release-file
+                                    "[file not found]")))
+           (cons "*os-release info*"
+                 (cons
+                  (cons "`os-release' location" os-release-file)
+                  (when os-release 
+                    (sysinfo-environs-list-of-string-equals-string-into-alist
+                     os-release t)))))))
+
+;; Simulate os-release not found:
+;;
+;; (let* ((os-release-file nil)
+;;        (os-release-file (or os-release-file
+;;                                     "[file not found]"))
+;;        (os-release nil)
+;;        (os-release-fake 
+;;         (cons "*os-release info*"
+;;               (cons
+;;                (cons "`os-release' location" os-release-file)
+;;                (when os-release 
+;;                  (sysinfo-environs-list-of-string-equals-string-into-alist
+;;                   os-release t))))))
+;;     (sysinfo-environs-sysinfo
+;;    (list
+;;     (sysinfo-environs-parse-uname-info)
+;;     os-release-fake)
+;;    "*Simulated System Info*")
+;;     ;; (sysinfo-environs-full-sys-info)
+;;     )
 
 ;;;;; uname -?
 (defun sysinfo-environs-parse-uname-info ()

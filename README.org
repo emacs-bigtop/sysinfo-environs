@@ -43,6 +43,7 @@ E.g.,
 ;; "guix"
 #+end_src
 
+*** Use 1: cross-distro shared ~init.el~ files
 This last example is one of the prompting factors for this package: it can be useful to know not only if the current instance of Emacs is running on Linux (rather than, e.g., Windows) but also /which distro/ it's running under. Because you might have a single Emacs ~init.el~ that you use across many systems and want to keep synchronised (say, with [[https://syncthing.net][Syncthing]]) in order to have changes you make to your ~init.el~ propagate across all of your Emacs instances on various machines, but you might some things to work differently on different machines depending on the particulars of the machine. Which in some cases might include which distro Emacs is running under. (In the past I've just used ~(system-name)~ for this and "hard-coded" things by knowing that the computers called "my-guix-laptop" and "old-thinkpad02" are both running on [[https://guix.gnu.org][Guix]].)
 
 There are two very useful values in =/etc/os-release=, and thus accessible by ~sysinfo-environs-look-up-field~, namely ~ID~ and ~ID_LIKE~.
@@ -85,6 +86,95 @@ Because of the difference between the ~os-release~ ~ID~ and ~ID_LIKE~ values, an
 #+end_src
 
 This will set ~this-system-os~ to the value of ~ID_LIKE~ if that is defined, and to the value of ~ID~ otherwise. This means ~this-system-os~  will be ~"guix"~ on your Guix machine and ~"arch"~ on both your vanilla Arch machine and your CachyOS machine.
+
+*** Use 2: encode system details
+What if you want to encode some system information in your LaTeX-produced PDF?
+
+There's a number of completion packages, I've been using [[https://github.com/minad/tempel][TempEl]], with a ~templates~ file located at ~~/.emacs.d/templates~. So something like (but see TempEl's documentation for the config):
+
+#+begin_src elisp
+(use-package tempel
+  :ensure t
+  ;; Require trigger prefix before template name when completing.
+  ;; :custom        
+  ;; (tempel-trigger-prefix "<")    
+  
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+  (setq tempel-path "~/.emacs.d/templates")
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+  )
+
+;; Optional: Add tempel-collection.
+;; The package is young and doesn't have comprehensive coverage.
+(use-package tempel-collection
+  :ensure t)
+#+end_src
+
+And then in my ~~/.emacs.d/templates~ file:
+#+begin_src elisp
+....
+
+tex-mode
+(hyperrefv
+ (replace-regexp-in-string
+  "_" "＿"
+  (replace-regexp-in-string
+   "#" "\\\\#"
+   (concat (make-string 1 ?\\) "usepackage[pdfusetitle,pdfcreator={"
+           (let* ((end-before-of (string-match "of " (emacs-version)))
+                  (end-of-of (match-end 0)))
+             (list end-before-of end-of-of)
+             (replace-regexp-in-string
+              "\n" ""
+              (if end-before-of
+                  (concat 
+                   (substring (emacs-version) 0 end-before-of)       
+                   "[built on "
+                   (substring (emacs-version) end-of-of )
+                   "]")
+                (emacs-version))))
+           " with AUCTeX "
+           AUCTeX-version
+                                        ; (pkg-info-package-version 'auctex)
+           " on "
+           (sysinfo-environs-look-up-field "os-release-info" "PRETTY_NAME")
+           " ("
+           (sysinfo-environs-look-up-field "uname-info" "KERNEL_NAME")
+           " "
+           (sysinfo-environs-look-up-field "uname-info" "KERNEL_RELEASE")
+           " ["
+           (sysinfo-environs-look-up-field "uname-info" "KERNEL_SPECS")
+           "])}]{hyperref}"))))
+#+end_src
+
+And then in a LaTeX document, somewhere in the preamble type ~hyperrefv~ and then hit ~TAB~ and it expands into something like:
+
+#+begin_src tex
+\usepackage[pdfusetitle,pdfcreator={GNU Emacs 30.1 (build 2, x86＿64-pc-linux-gnu, GTK+ Version 3.24.48, cairo version 1.18.2) [built on 2025-03-03] with AUCTeX 14.0.9 on CachyOS (Linux 6.13.7-2-cachyos [\#1 SMP PREEMPT＿DYNAMIC Fri, 14 Mar 2025 09:31:47 +0000])}]{hyperref}
+#+end_src
+
 
 ** Other notes
 .....
