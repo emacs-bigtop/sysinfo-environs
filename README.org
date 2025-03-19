@@ -49,6 +49,9 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 [[https://github.com/emacs-bigtop/sysinfo-environs/issues/new/choose][Open an issue]] if you're on a system where there should be system/distro/os icons and they're somewhere else and so  ~sysinfo-environs-sysinfo~ isn't finding them.]
 
+Another screenshot, showing more system information:
+[[.screenshots/sysinfo-environs_full-ex.jpg]]
+
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
