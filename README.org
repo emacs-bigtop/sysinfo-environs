@@ -2,6 +2,19 @@ work-in-progress, unstable/incomplete.
 
 if you really want to use, clone and load or use an advanced package manager like [[https://github.com/progfolio/elpaca][Elpaca]].
 
+E.g.,
+
+#+begin_src elisp
+(use-package sysinfo-environs
+  :ensure (:wait t :host github :repo "emacs-bigtop/sysinfo-environs")
+  :demand t
+  :config
+  (setq this-system-os
+        (sysinfo-environs-look-up-field "os-release-info" "ID")))
+#+end_src
+
+(see below for why these options)
+
 * Emacs System Information and Environs
 Get information about your Emacs and your system.
 
