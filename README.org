@@ -1,6 +1,6 @@
 work-in-progress, unstable/incomplete.
 
-if you really want to use, clone and load or use an advanced package manager like elpaca.
+if you really want to use, clone and load or use an advanced package manager like [[https://github.com/progfolio/elpaca][Elpaca]].
 
 * Emacs System Information and Environs
 Get information about your Emacs and your system.
@@ -9,8 +9,8 @@ Can be used to extract particular bits of information, or to display nice Org-fo
 
 ** Interactive temp buffer display functions
 For the latter, currently the following functions are defined and can be used as interactive commands which show information in a temp buffer with Org-mode styling:
-- ~sysinfo-environs-os-release-info~: show the ~/etc/os-release~ info
-- ~sysinfo-environs-os-uname-info-display~: show various information that ~uname~ knows about
+- ~sysinfo-environs-os-release-info~: show the ~/etc/os-release~ info (on this information and specification, see: [[https://linux.org/docs/man5/os-release.html][~OS_RELEASE(5)~]])
+- ~sysinfo-environs-os-uname-info-display~: show various information that ~uname~ knows about (on ~uname~, see [[https://en.wikipedia.org/wiki/Uname][here]])
 - ~sysinfo-environs-os-release-and-uname-display~: show both of the previous 
 - ~sysinfo-environs-emacs-self-info-display~: show information about your Emacs (version, toolkit &c.)
 - ~sysinfo-environs-full-sys-info-display~: show all the information that Emacs System Information and Environs can display. [currently this is all of the above, plus what very basic system information Emacs knows about your OS]. this is encoded in variable ~sysinfo-environs-dataset-alist~.
@@ -43,11 +43,11 @@ E.g.,
 ;; "guix"
 #+end_src
 
-This last example is one of the prompting factors for this package: it can be useful to know not only if the current instance of Emacs is running on Linux (rather than, e.g., Windows) but also /which distro/ it's running under. Because you might have a single Emacs ~init.el~ that you use across many systems and want to keep synchronised (say, with Syncthing) in order to have changes you make to your ~init.el~ propagate across all of your Emacs instances on various machines, but you might some things to work differently on different machines depending on the particulars of the machine. Which in some cases might include which distro Emacs is running under. (In the past I've just used ~(system-name)~ for this and "hard-coded" things by knowing that the computers called "my-guix-laptop" and "old-thinkpad02" are both running on Guix.)
+This last example is one of the prompting factors for this package: it can be useful to know not only if the current instance of Emacs is running on Linux (rather than, e.g., Windows) but also /which distro/ it's running under. Because you might have a single Emacs ~init.el~ that you use across many systems and want to keep synchronised (say, with [[https://syncthing.net][Syncthing]]) in order to have changes you make to your ~init.el~ propagate across all of your Emacs instances on various machines, but you might some things to work differently on different machines depending on the particulars of the machine. Which in some cases might include which distro Emacs is running under. (In the past I've just used ~(system-name)~ for this and "hard-coded" things by knowing that the computers called "my-guix-laptop" and "old-thinkpad02" are both running on [[https://guix.gnu.org][Guix]].)
 
 There are two very useful values in =/etc/os-release=, and thus accessible by ~sysinfo-environs-look-up-field~, namely ~ID~ and ~ID_LIKE~.
 
-So on a Guix machine, if you call ~(sysinfo-environs-look-up-field "os-release-info" "ID")~, you'll get back ~"guix"~ . If you're running CachyOS, ~(sysinfo-environs-look-up-field "os-release-info" "ID")~ will give you back ~"cachyos"~ and ~(sysinfo-environs-look-up-field "os-release-info" "ID_LIKE")~ will give you back ~"arch"~ - because CachyOS is an Arch derivative. It might be useful to know the particular variant/derivative you're running Emacs under (e.g., CachyOS), but you might just want to know "is this essentially an Arch machine, whether it's pure Arch or CachyOS or EndeavourOS or Garuda &c.?"
+So on a Guix machine, if you call ~(sysinfo-environs-look-up-field "os-release-info" "ID")~, you'll get back ~"guix"~ . If you're running CachyOS, ~(sysinfo-environs-look-up-field "os-release-info" "ID")~ will give you back ~"cachyos"~ and ~(sysinfo-environs-look-up-field "os-release-info" "ID_LIKE")~ will give you back ~"arch"~ - because CachyOS is an [[https://archlinux.org][Arch Linux]] derivative. It might be useful to know the particular variant/derivative you're running Emacs under (e.g., CachyOS), but you might just want to know "is this essentially an Arch machine, whether it's pure Arch or [[https://cachyos.org][CachyOS]] or [[https://endeavouros.com][EndeavourOS]] or [[https://garudalinux.org][Garuda]] &c.?"
 
 If you're going to use it like this, make sure to =require= ~sysinfo-environs~ early in your =init.el= (i.e., before you're going to call on it.)
 
@@ -71,7 +71,7 @@ And so, as in the above config example, you could set a variable which gives you
       (pdf-tools-install 'no-query))
 #+end_src
 
-(This example is for one of my use-cases: I generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, I have to use Guix's own packaged version of ~emacs-pdf-tools~ because PDF Tools wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here I use ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
+(This example is for one of my use-cases: I generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, I have to use Guix's own packaged version of ~emacs-pdf-tools~ because [[https://pdftools.wiki][PDF Tools]] wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here I use ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
 
 Because of the difference between the ~os-release~ ~ID~ and ~ID_LIKE~ values, and the fact that not all distros will set ~ID_LIKE~, you might want to set your "this-system-os" variable (whatever you want to call it) like this:
 
