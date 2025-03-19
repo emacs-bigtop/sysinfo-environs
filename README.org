@@ -168,8 +168,7 @@ tex-mode
                 ;; if no build-date (like on Guix), just return the (emacs-version) info
                 (emacs-version))))
            " with AUCTeX "
-           AUCTeX-version
-                                        ; (pkg-info-package-version 'auctex)
+           AUCTeX-version                                        
            " on "
            ;; OS/distro name:
            (sysinfo-environs-look-up-field "os-release-info" "PRETTY_NAME")
