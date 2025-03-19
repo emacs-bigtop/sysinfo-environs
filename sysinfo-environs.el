@@ -118,10 +118,100 @@ and makes it into a list of alists of the form:
 (defun sysinfo-environs-emacs-known-sysinfo ()
   "Creates an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
-         `(("system-name" . ,system-name)
+         `(("system-name" .
+            ,(if (version< emacs-version "25.1")
+                system-name
+              (system-name)))
           ("system-type" . ,system-type)
           ("system-configuration" . ,system-configuration))))
     (cons "*emacs known sysinfo*" emacs-sysinfo)))
+
+;;;;; Emacs information about itself
+(defun sysinfo-environs-emacs-self-info ()
+  "Creates an alist about things Emacs knows about itself."
+  (let ((common-features
+         '(emacs-version
+           emacs-build-number
+           system-configuration))
+        (if-featurep
+         '(motif
+           gtk
+           x-toolkit
+           ns
+           haiku
+           ;; cairo
+           ))
+        ;; (bound-featurep
+        ;;  '(x-toolkit-scroll-bars))
+        (emacs-self-info nil))
+    (dolist (feat common-features)
+      (setq emacs-self-info
+            (cons
+             (cons (symbol-name feat)
+                   (eval feat))
+             emacs-self-info)))
+    (setq emacs-self-info
+          (cons
+           (cons
+            "toolkit"
+           (cond ((featurep 'gtk)
+                   (concat
+                    "GTK-toolkit (GTK "
+                    gtk-version-string
+                    ")"))
+                 ((featurep 'x-toolkit)
+                  "Lucid/Athena-toolkit (X toolkit)")
+                 ((featurep 'motif)
+                  (concat
+                   "Motif-toolkit ("
+                   ;; note: maybe want to use more than just
+                   ;;       this substring
+                   ;;       [TODO: test on motif build]
+                   (substring motif-version-string 4)
+                   ")"))
+                 ((featurep 'ns)
+                  (concat
+                   "NS-toolkit ("
+                   ns-version-string
+                   ")"))
+                 ((featurep 'haiku)
+                  (concat
+                   "Haiku-toolkit ("
+                   (haiku-get-version-string)
+                   ")"))
+                 (t
+                  "none")))
+           emacs-self-info))
+    (if (featurep 'cairo)
+        (setq emacs-self-info
+              (cons 
+               (cons
+                "cairo-version"
+                cairo-version-string)
+               emacs-self-info)))
+    (if (boundp 'x-toolkit-scroll-bars)
+      (setq emacs-self-info
+            (cons 
+             (cons
+              "scrollbars toolkit"
+              (if (memq x-toolkit-scroll-bars '(xaw xaw3d))
+                  (format "%s"
+		          (capitalize
+                           (symbol-name x-toolkit-scroll-bars)))
+                "none"))
+             emacs-self-info)))
+    (if emacs-build-time
+        (setq emacs-self-info
+              (cons 
+               (cons
+                "emacs-build-time"
+                (format-time-string emacs-build-time))
+               emacs-self-info)))
+    (cons "*emacs self info*" (nreverse emacs-self-info))))
+
+;; (sysinfo-environs-emacs-self)
+
+
 
 ;;;;; Information about Emacs build
 ;; (defun sysinfo-environs-emacs-own-info ()
@@ -140,6 +230,7 @@ and makes it into a list of alists of the form:
 ;;;;; list of all sources
 (defvar sysinfo-environs-dataset-alist
   '(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
+    ("emacs-self-info" . (sysinfo-environs-emacs-self-info))
     ("uname-info" . (sysinfo-environs-parse-uname-info))
     ("os-release-info" . (sysinfo-environs-parse-os-release)))
   "An alist of all of the datasources and some names for them.")
@@ -245,9 +336,12 @@ Should be called with a list of one or more `DATASETS'
                 (setq logo-name (cdr item)))
               (let* ((label (car item))
                      (value* (cdr item))
-                     (value (if (stringp value*)
-                                value*
-                              (concat "'" (symbol-name value*)))))
+                     (value (cond ((stringp value*)
+                                   value*)
+                                  ((symbolp value*)
+                                   (concat "'" (symbol-name value*)))
+                                  ((numberp value*)
+                                   (number-to-string value*)))))
                 (insert (concat "=" label "=" " == " "~" value "~" "\n"))))
             (org-mode)
             (org-table-convert-region (point-min) (point-max) " == ")
@@ -306,7 +400,7 @@ Should be called with a list of one or more `DATASETS'
    "*OS Release Info*"))
 
 ;;;###autoload
-(defun sysinfo-environs-os-uname-info ()
+(defun sysinfo-environs-os-uname-info-display ()
   "Interactive function to display `uname -?' info."
   (interactive)
   (sysinfo-environs-sysinfo
@@ -315,7 +409,7 @@ Should be called with a list of one or more `DATASETS'
    "*OS uname Info*"))
 
 ;;;###autoload
-(defun sysinfo-environs-os-release-and-uname ()
+(defun sysinfo-environs-os-release-and-uname-display ()
   "Interactive function to display all system information
 from os-release and uname."
   (interactive)
@@ -326,7 +420,17 @@ from os-release and uname."
    "*System Info*"))
 
 ;;;###autoload
-(defun sysinfo-environs-full-sys-info ()
+(defun sysinfo-environs-emacs-self-info-display ()
+  "Interactive function to display information about Emacs itself."
+  (interactive)
+  (sysinfo-environs-sysinfo
+   (list
+    (sysinfo-environs-emacs-self-info))
+   "*Emacs Self Info*"))
+
+
+;;;###autoload
+(defun sysinfo-environs-full-sys-info-display ()
   "Interactive function to display all accessible system info."
   (interactive)
   (sysinfo-environs-sysinfo
