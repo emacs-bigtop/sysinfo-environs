@@ -36,6 +36,17 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 [[./screenshots/sysinfo-environs_guix_ex.jpg]]
 
+[Currently, ~sysinfo-environs-sysinfo~ tries in order:
+#+begin_src elisp
+'("/usr/share/icons" ;; usual place
+"/usr/local/share/icons" ;; if you've local thing
+"/run/current-system/profile/share/icons" ;; where they are on Guix
+                                          ;; (& maybe Nix?)
+)
+#+end_src
+
+[[https://github.com/emacs-bigtop/sysinfo-environs/issues/new/choose][Open an issue]] if you're on a system where there should be system/distro/os icons and they're somewhere else and so  ~sysinfo-environs-sysinfo~ isn't finding them.]
+
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
