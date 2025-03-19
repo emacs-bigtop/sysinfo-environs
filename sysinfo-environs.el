@@ -9,9 +9,9 @@
 ;; URL: https://addme.com
 ;; Package-Version: ADDME
 ;; Version: ADDME
-;; Package-Requires: ???
-;; Created: ????
-;; Keywords: ????
+;; Package-Requires: ((emacs "26.1") (org "9.4"))
+;; Created: March 2025
+;; Keywords: tools
 
 ;; This file is NOT part of GNU Emacs.
 
