@@ -7,7 +7,7 @@ Get information about your Emacs and your system.
 
 Can be used to extract particular bits of information, or to display nice Org-formatted tables of information.
 
-** Interactive temp buffer display functions
+** temp-buffer-displaying interactive functions
 For the latter, currently the following functions are defined and can be used as interactive commands which show information in a temp buffer with Org-mode styling:
 - ~sysinfo-environs-os-release-info~: show the ~/etc/os-release~ info (on this information and specification, see: [[https://linux.org/docs/man5/os-release.html][~OS_RELEASE(5)~]])
 - ~sysinfo-environs-os-uname-info-display~: show various information that ~uname~ knows about (on ~uname~, see [[https://en.wikipedia.org/wiki/Uname][here]])
@@ -19,7 +19,7 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 [[./screenshots/sysinfo-environs_guix_ex.jpg]]
 
-** sysinfo-environs-look-up-field 
+** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
 When ~sysinfo-environs-look-up-field~ it will ask the user to choose between the datasets in ~sysinfo-environs-dataset-alist~ and then show a list of fields from the dataset and ask the user to choose one of these and then message the value of that field in the message area/echo buffer.
