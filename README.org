@@ -137,12 +137,12 @@ And then in my =~/.emacs.d/templates= file:
 ....
 
 tex-mode
-;; `hyperrefv' is the template shortcut; hit `TAB' key to expand:
+;; `hyperrefv' is the template shortcut; hit `TAB' key to expand when in tex-mode:
 (hyperrefv
- ;; TeX chokes on _
+ ;; TeX chokes on `_'
  (replace-regexp-in-string
   "_" "＿"
-  ;; TeX doesn't like # either
+  ;; TeX doesn't like `#' either
   (replace-regexp-in-string
    "#" "\\\\#"
    ;; use TeX-specified \title and \author, and then set `creator'
@@ -153,7 +153,7 @@ tex-mode
            (let* ((end-before-of (string-match "of " (emacs-version)))
                   (end-of-of (match-end 0)))
              (list end-before-of end-of-of)
-             ;; get rid of the newline
+             ;; get rid of the newline from (emacs-version)
              (replace-regexp-in-string
               "\n" ""
               ;; if there is a build-date
@@ -181,7 +181,7 @@ tex-mode
            " ["
            ;; other kernel specs:
            (sysinfo-environs-look-up-field "uname-info" "KERNEL_SPECS")
-           ;; called as arguments to TeX package `hyperref'
+           ;; called as arguments to TeX package `hyperref':
            "])}]{hyperref}"))))
 #+end_src
 
