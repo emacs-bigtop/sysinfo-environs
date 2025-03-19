@@ -154,45 +154,66 @@ For use in helper functions and elsewhere."
                   barelist)))
     (nreverse barelist)))
 
+
 ;; (sysinfo-environs-emacs-known-sysinfo)
-;; (sysinfo-environs-dataset-bare-list)
+;; (sysinfo-environs-dataset-bare-list-quoted)
 
 ;;;; Main functions  for creating temp buffers with pretty org tables
 
 ;;;###autoload
-(defun sysinfo-environs-look-up-field (&optional dataset field)
+(defun sysinfo-environs-look-up-field (&optional dataset fieldname)
   "Return the value of a sysinfo `FIELD' from a given `DATASET' source.
 
 Can be used interactively, will prompt user for `DATASET',
 listing from all possibilities from `sysinfo-environs-dataset-alist',
 and then listing all possible `FIELD's for chosen data source."
   (interactive)
-  (let* ((message-p (null (and dataset field)))
+  (let* ((choices sysinfo-environs-dataset-alist)
+         (message-p (null (and dataset fieldname)))
          (dataset
           (cdr 
-           (or dataset
+           (if dataset
+               ;; if dataset is passed as string
+               (if (stringp dataset)
+                   (eval
+                    (cdr 
+                     (assoc dataset choices)))
+                 ;; otherwise dataset is just passed as function
+                 dataset)
+             ;; if no dataset passed, ask user which one
                (eval
-                  (cdr
-                   (assoc
-                      (completing-read
-                       "Which dataset of info: "
-                       (cl-loop for (key . _) in choices
-                                collect key))
-                      sysinfo-environs-dataset-alist))))))
-    (field
-     (or (assoc field dataset) 
-               (assoc 
-                (completing-read
-                 "Return value for field: "
-                 (cl-loop for (key . _) in dataset
-                          collect key))
-                dataset)))
-    (value
-     (cdr field)))
+                (cdr
+                 (assoc
+                  (completing-read
+                   "Which dataset of info: "
+                   (cl-loop for (key . _) in choices
+                            collect key))
+                  choices))))))
+         (field
+          ;; use `fieldname' if passed
+          (or (and fieldname (assoc fieldname dataset))
+              ;; otherwise ask user for field, presenting
+              ;; the choices from `dataset'
+              (assoc 
+               (completing-read
+                "Return value for field: "
+                (cl-loop for (key . _) in dataset
+                         collect key))
+               dataset)))
+         (value
+          (cdr field)))
+    ;; if called interactively, message user
     (if message-p
-        (message value)
+        ;; if the value isn't a string, make it one (appending a quote)
+        (if (stringp value)
+            (message value)
+          (message (concat "'" (symbol-name value))))
       value)))
 
+;; examples:
+;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type")
+;; (sysinfo-environs-look-up-field "emacs-info" "system-type")
+;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type") 
 
 (defun sysinfo-environs-sysinfo (datasets &optional titlename)
   "Main function for creating temp buffers with Org tables
