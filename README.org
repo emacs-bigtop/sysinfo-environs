@@ -137,35 +137,52 @@ And then in my =~/.emacs.d/templates= file:
 ....
 
 tex-mode
+;; `hyperrefv' is the template shortcut; hit `TAB' key to expand:
 (hyperrefv
+ ;; TeX chokes on _
  (replace-regexp-in-string
   "_" "＿"
+  ;; TeX doesn't like # either
   (replace-regexp-in-string
    "#" "\\\\#"
+   ;; use TeX-specified \title and \author, and then set `creator'
    (concat (make-string 1 ?\\) "usepackage[pdfusetitle,pdfcreator={"
+           ;; when there's a build-date, format it differently
+           ;; (emacs-version) return build-date as " of <DATE>"
+           ;; get the string slices for the beginning and end of this:
            (let* ((end-before-of (string-match "of " (emacs-version)))
                   (end-of-of (match-end 0)))
              (list end-before-of end-of-of)
+             ;; get rid of the newline
              (replace-regexp-in-string
               "\n" ""
+              ;; if there is a build-date
               (if end-before-of
+                  ;; replace the " of <DATE>"
+                  ;; with [built on <DATE>]
                   (concat 
                    (substring (emacs-version) 0 end-before-of)       
                    "[built on "
                    (substring (emacs-version) end-of-of )
                    "]")
+                ;; if no build-date (like on Guix), just return the (emacs-version) info
                 (emacs-version))))
            " with AUCTeX "
            AUCTeX-version
                                         ; (pkg-info-package-version 'auctex)
            " on "
+           ;; OS/distro name:
            (sysinfo-environs-look-up-field "os-release-info" "PRETTY_NAME")
            " ("
+           ;; kernel name (e.g., "Linux"):
            (sysinfo-environs-look-up-field "uname-info" "KERNEL_NAME")
            " "
+           ;; kernel version:
            (sysinfo-environs-look-up-field "uname-info" "KERNEL_RELEASE")
            " ["
+           ;; other kernel specs:
            (sysinfo-environs-look-up-field "uname-info" "KERNEL_SPECS")
+           ;; called as arguments to TeX package `hyperref'
            "])}]{hyperref}"))))
 #+end_src
 
