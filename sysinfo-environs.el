@@ -158,6 +158,8 @@ For use in helper functions and elsewhere."
 ;; (sysinfo-environs-dataset-bare-list)
 
 ;;;; Main functions  for creating temp buffers with pretty org tables
+
+;;;###autoload
 (defun sysinfo-environs-look-up-field (&optional dataset field)
   "Return the value of a sysinfo `FIELD' from a given `DATASET' source.
 
