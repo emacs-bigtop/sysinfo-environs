@@ -2,7 +2,7 @@
 
 ;; System Information and Environs
 
-;; Copyright (C) 2025 ADD ME
+;; Copyright (C) 2025 ......
 
 ;; Author: ADD ME <addme@email.net>
 ;; Maintainer: ADD ME <addme@email.net>
@@ -114,7 +114,7 @@ and makes it into a list of alists of the form:
                    uname-info)))
     (cons "*uname -?*" uname-info)))
 
-;;;;; from Emacs itself
+;;;;; sysinfo from Emacs itself
 (defun sysinfo-environs-emacs-known-sysinfo ()
   "Creates an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
@@ -122,6 +122,20 @@ and makes it into a list of alists of the form:
           ("system-type" . ,system-type)
           ("system-configuration" . ,system-configuration))))
     (cons "*emacs known sysinfo*" emacs-sysinfo)))
+
+;;;;; Information about Emacs build
+;; (defun sysinfo-environs-emacs-own-info ()
+;;   "Creates an alist with some useful information about the current Emacs build."
+;;   (let ((sco-raw (split-string system-configuration-options))
+;;         (sco-processed ())
+;;         (sco-state t)
+;;         (about-emacs-raw (emacs-version))
+;;         (native-comp-avail (native-comp-available-p))
+;;         (native-comp-method (if native-comp-jit-compilation 'jit 'aot)))
+;;     (dolist (item sco-raw)
+;;       (cond
+;;        ((eq sco-state t)
+;;         )))))
 
 ;;;;; list of all sources
 (defvar sysinfo-environs-dataset-alist
@@ -138,7 +152,7 @@ For use in helper functions and elsewhere."
       (setq barelist
             (append (list (eval (list (cadr dataset))))
                   barelist)))
-    barelist))
+    (nreverse barelist)))
 
 ;; (sysinfo-environs-emacs-known-sysinfo)
 ;; (sysinfo-environs-dataset-bare-list)
@@ -258,6 +272,8 @@ Should be called with a list of one or more `DATASETS'
         (goto-char (point-min)))))
 
 ;;;; Interactive functions
+
+;;;###autoload
 (defun sysinfo-environs-os-release-info ()
   "Interactive function to display `/etc/os-release' info."
   (interactive)
@@ -266,6 +282,7 @@ Should be called with a list of one or more `DATASETS'
     (sysinfo-environs-parse-os-release))
    "*OS Release Info*"))
 
+;;;###autoload
 (defun sysinfo-environs-os-uname-info ()
   "Interactive function to display `uname -?' info."
   (interactive)
@@ -274,6 +291,7 @@ Should be called with a list of one or more `DATASETS'
     (sysinfo-environs-parse-uname-info))
    "*OS uname Info*"))
 
+;;;###autoload
 (defun sysinfo-environs-os-release-and-uname ()
   "Interactive function to display all system information
 from os-release and uname."
@@ -284,6 +302,7 @@ from os-release and uname."
     (sysinfo-environs-parse-os-release))
    "*System Info*"))
 
+;;;###autoload
 (defun sysinfo-environs-full-sys-info ()
   "Interactive function to display all accessible system info."
   (interactive)
