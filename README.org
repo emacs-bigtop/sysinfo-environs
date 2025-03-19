@@ -24,7 +24,7 @@ Get information about your Emacs and your system.
 
 Can be used to extract particular bits of information, or to display nice Org-formatted tables of information.
 
-(The idea being something like [[https://github.com/dylanaraps/neofetch][neofetch]] or [[https://github.com/fastfetch-cli/fastfetch][fastfetch]], but for/in Emacs; but also (perhaps more usefully) a nice frontend for programmatically executing Elisp [in your ~init.el~, do different things depending not only on whether you're on Linux or another OS, but also depending on exactly which Linux distro (or distro family) you're running on] or doing other system-specific things [e.g., setting PDF metadata].)
+(The idea being something like [[https://github.com/dylanaraps/neofetch][neofetch]] or [[https://github.com/fastfetch-cli/fastfetch][fastfetch]], but for/in Emacs; but also (perhaps more usefully) a nice frontend for programmatically executing Elisp [e.g., in your ~init.el~, do different things depending not only on whether you're on Linux or another OS, but also depending on exactly which Linux distro (or distro family) you're running on] or doing other system-specific things [e.g., setting PDF metadata].)
 
 ** temp-buffer-displaying interactive functions
 For the latter, currently the following functions are defined and can be used as interactive commands which show information in a temp buffer with Org-mode styling:
