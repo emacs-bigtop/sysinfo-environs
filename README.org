@@ -90,7 +90,7 @@ This will set ~this-system-os~ to the value of ~ID_LIKE~ if that is defined, and
 *** Use 2: encode system details
 What if you want to encode some system information in your LaTeX-produced PDF?
 
-There's a number of completion packages, I've been using [[https://github.com/minad/tempel][TempEl]], with a ~templates~ file located at ~~/.emacs.d/templates~. So something like (but see TempEl's documentation for the config):
+There's a number of completion packages, I've been using [[https://github.com/minad/tempel][TempEl]], with a ~templates~ file located at =~/.emacs.d/templates=. So something like (but see TempEl's documentation for the config):
 
 #+begin_src elisp
 (use-package tempel
@@ -132,7 +132,7 @@ There's a number of completion packages, I've been using [[https://github.com/mi
   :ensure t)
 #+end_src
 
-And then in my ~~/.emacs.d/templates~ file:
+And then in my =~/.emacs.d/templates= file:
 #+begin_src elisp
 ....
 
