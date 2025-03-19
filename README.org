@@ -9,7 +9,7 @@ Can be used to extract particular bits of information, or to display nice Org-fo
 
 ** temp-buffer-displaying interactive functions
 For the latter, currently the following functions are defined and can be used as interactive commands which show information in a temp buffer with Org-mode styling:
-- ~sysinfo-environs-os-release-info~: show the ~/etc/os-release~ info (on this information and specification, see: [[https://linux.org/docs/man5/os-release.html][~OS_RELEASE(5)~]])
+- ~sysinfo-environs-os-release-info~: show the ~/etc/os-release~ info (on this information and specification, see: [[https://linux.org/docs/man5/os-release.html][OS_RELEASE(5)]])
 - ~sysinfo-environs-os-uname-info-display~: show various information that ~uname~ knows about (on ~uname~, see [[https://en.wikipedia.org/wiki/Uname][here]])
 - ~sysinfo-environs-os-release-and-uname-display~: show both of the previous 
 - ~sysinfo-environs-emacs-self-info-display~: show information about your Emacs (version, toolkit &c.)
