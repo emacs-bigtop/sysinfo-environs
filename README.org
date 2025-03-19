@@ -10,10 +10,14 @@ E.g.,
   :demand t
   :config
   (setq this-system-os
-        (sysinfo-environs-look-up-field "os-release-info" "ID")))
+        (let ((idlike
+               (sysinfo-environs-look-up-field "os-release-info" "ID_LIKE")))
+          (if idlike
+              idlike
+            (sysinfo-environs-look-up-field "os-release-info" "ID")))))
 #+end_src
 
-(see below for why these options)
+(See below discussion for why these options.)
 
 * Emacs System Information and Environs
 Get information about your Emacs and your system.
