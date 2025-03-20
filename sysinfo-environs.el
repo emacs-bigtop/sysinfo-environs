@@ -184,7 +184,7 @@ and makes it into a list of alists of the form:
       (setq emacs-self-info
             (cons
              (cons (symbol-name feat)
-                   (eval feat))
+                   (format "%s" (eval feat)))
              emacs-self-info)))
     (setq emacs-self-info
           (cons
@@ -229,7 +229,7 @@ and makes it into a list of alists of the form:
       (setq emacs-self-info
             (cons 
              (cons
-              "scrollbars toolkit"
+              "scrollbars-toolkit"
               (if (memq x-toolkit-scroll-bars '(xaw xaw3d))
                   (format "%s"
 		          (capitalize
@@ -241,7 +241,7 @@ and makes it into a list of alists of the form:
               (cons 
                (cons
                 "emacs-build-time"
-                (format-time-string emacs-build-time))
+                (format-time-string "%Y-%m-%d %H:%M:%S" emacs-build-time))
                emacs-self-info)))
     (cons "*emacs self info*" (nreverse emacs-self-info))))
 
@@ -355,6 +355,7 @@ Should be called with a list of one or more `DATASETS'
 `TITLENAME' for the temp buffer."
   (let ((temp-buff-name (or titlename "*System Information*"))
         (logo-name nil)
+        (os-is-name nil)
         (best-image nil))
     (get-buffer-create temp-buff-name)
     (with-current-buffer temp-buff-name
@@ -374,6 +375,9 @@ Should be called with a list of one or more `DATASETS'
               (when (and (string= dtitle "*os-release info*")
                          (string= (car item) "LOGO"))
                 (setq logo-name (cdr item)))
+              (when (and (string= dtitle "*os-release info*")
+                         (string= (car item) "ID"))
+                (setq os-id-name (cdr item)))
               (let* ((label (car item))
                      (value* (cdr item))
                      (value (cond ((stringp value*)
@@ -396,9 +400,17 @@ Should be called with a list of one or more `DATASETS'
       (goto-char (point-max))
       (insert "\n")
       (read-only-mode 1)
-      (switch-to-buffer-other-window temp-buff-name))
+      (switch-to-buffer-other-window temp-buff-name)
+      (when (and (boundp 'visual-fill-column-mode)
+                 visual-fill-column-mode)
+        (visual-fill-column-mode -1)))
     (when logo-name
-      (let ((xdg-dirs (list "/usr/share/icons" "/usr/local/share/icons" "/run/current-system/profile/share/icons"))
+      (let ((xdg-dirs (list
+                       (concat "/usr/share/" os-id-name)
+                       "/usr/share/pixmaps"
+                       "/usr/local/share/icons"
+                       "/usr/share/icons"
+                       "/run/current-system/profile/share/icons"))
             (logo-search '()))
         (dolist (dir xdg-dirs)
           (when (file-directory-p dir)
