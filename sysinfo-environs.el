@@ -423,6 +423,8 @@ and then listing all possible `FIELDNAME's for chosen data source."
 ;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type")
 
 ;;; Main function
+
+;;;###autoload
 (defun sysinfo-environs-sysinfo (datasets &optional titlename)
   "Create temp buffers with Org tables containing system information.
 
