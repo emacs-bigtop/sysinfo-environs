@@ -90,40 +90,6 @@ Optional argument `QUOTED' escapes double-quotes in STRINGS."
 ;;;; Functions to create alists from various data sources
 
 ;;;;; /etc/os-release
-(defun sysinfo-environs-parse-os-release ()
-  "Parse the `/etc/os-release' file into an alist."
-  (let* ((os-release-file
-          (cond ((file-exists-p "/etc/os-release")
-                 "/etc/os-release")
-                ((file-exists-p "/usr/lib/os-release")
-                 "/usr/lib/os-release")
-                (t nil)))
-         (os-release (when os-release-file
-                       (sysinfo-environs-file-by-line-into-list
-                        os-release-file)))
-         (os-release-file (or os-release-file
-                                    "[file not found]"))
-         (os-release
-          (cons "*os-release info*"
-                (cons
-                 (cons "`os-release' location" os-release-file)
-                 (when os-release
-                   (sysinfo-environs-list-of-string-equals-string-into-alist
-                    os-release t)))))
-         (logo-name (cdr (assoc "LOGO" os-release)))
-         (os-id-name (cdr (assoc "ID" os-release))))
-    (when logo-name
-      (let ((img-path (sysinfo-environs--find-logo-path logo-name os-id-name)))
-        (setq os-release (nreverse
-                          (cons
-                           (cons "LOGO-IMAGE-PATH"
-                                 (if img-path
-                                     img-path
-                                   "[not found]"))
-                           (nreverse os-release))))))))
-
-;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
-
 (defun sysinfo-environs--find-logo-path (logo-name os-id-name)
   "Find a path to the distributions `LOGO-NAME' image file.
 
@@ -205,6 +171,40 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;    "*Simulated System Info*")
 ;;     ;; (sysinfo-environs-full-sys-info)
 ;;     )
+
+(defun sysinfo-environs-parse-os-release ()
+  "Parse the `/etc/os-release' file into an alist."
+  (let* ((os-release-file
+          (cond ((file-exists-p "/etc/os-release")
+                 "/etc/os-release")
+                ((file-exists-p "/usr/lib/os-release")
+                 "/usr/lib/os-release")
+                (t nil)))
+         (os-release-file (or os-release-file
+                              "[file not found]"))
+         (os-release-raw (when os-release-file
+                       (sysinfo-environs-file-by-line-into-list
+                        os-release-file)))
+         (os-release
+          (cons "*os-release info*"
+                (cons
+                 (cons "`os-release' location" os-release-file)
+                 (when os-release-raw
+                   (sysinfo-environs-list-of-string-equals-string-into-alist
+                    os-release-raw t)))))
+         (logo-name (cdr (assoc "LOGO" os-release)))
+         (os-id-name (cdr (assoc "ID" os-release))))
+    (when logo-name
+      (let ((img-path (sysinfo-environs--find-logo-path logo-name os-id-name)))
+        (setq os-release (nreverse
+                          (cons
+                           (cons "LOGO-IMAGE-PATH"
+                                 (if img-path
+                                     img-path
+                                   "[not found]"))
+                           (nreverse os-release))))))))
+
+;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
 
 ;;;;; uname -?
 (defun sysinfo-environs-parse-uname-info ()
