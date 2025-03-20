@@ -49,11 +49,13 @@
 (require 'cl-lib)
 
 ;;;; Helper functions
+;;;###autoload
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
   "Splits a string `LONGSTRING' into a lists of strings.
 \=(`\n' (newlines) are counted as dividers.\=)"
  (split-string longstring "\n"))
 
+;;;###autoload
 (defun sysinfo-environs-list-of-string-equals-string-into-alist (strings &optional quoted)
   "Transform list of strings `STRINGS' into an alist of `(label . value)'.
 
@@ -73,6 +75,7 @@ Optional argument `QUOTED' escapes double-quotes in STRINGS."
                     (cadr field)))))
    strings))
 
+;;;###autoload
 (defun sysinfo-environs-file-by-line-into-list (file &optional n)
   "Return first N lines of FILE."
   (let ((lines (or n
@@ -90,6 +93,7 @@ Optional argument `QUOTED' escapes double-quotes in STRINGS."
 ;;;; Functions to create alists from various data sources
 
 ;;;;; /etc/os-release
+;;;###autoload
 (defun sysinfo-environs--find-logo-path (logo-name os-id-name)
   "Find a path to the distributions `LOGO-NAME' image file.
 
@@ -170,6 +174,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;     ;; (sysinfo-environs-full-sys-info)
 ;;     )
 
+;;;###autoload
 (defun sysinfo-environs-parse-os-release ()
   "Parse the `/etc/os-release' file into an alist."
   (let* ((os-release-file
@@ -218,6 +223,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
 
 
 ;;;;; uname -?
+
+;;;###autoload
 (defun sysinfo-environs-parse-uname-info ()
   "Create an alist from some `uname' outputs."
   (let ((params '(("KERNEL_SPECS" . "-v")
@@ -238,6 +245,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
     (cons "*uname -?*" uname-info)))
 
 ;;;;; sysinfo from Emacs itself
+
+;;;###autoload
 (defun sysinfo-environs-emacs-known-sysinfo ()
   "Create an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
@@ -250,6 +259,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
     (cons "*emacs known sysinfo*" emacs-sysinfo)))
 
 ;;;;; Emacs information about itself
+
+;;;###autoload
 (defun sysinfo-environs-emacs-self-info ()
   "Create an alist about things Emacs knows about itself."
   (let ((common-features
@@ -337,6 +348,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
 
 
 ;;;;; Information about Emacs build
+
 ;; (defun sysinfo-environs-emacs-own-info ()
 ;;   "Creates an alist with some useful information about the current Emacs build."
 ;;   (let ((sco-raw (split-string system-configuration-options))
