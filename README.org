@@ -170,6 +170,7 @@ And then in my =~/.emacs.d/templates= file:
 #+begin_src elisp
 ;; <other shortcuts here>
 
+;; define shortcuts for `tex-mode' (including `hyperrefv')
 tex-mode
 ;; `hyperrefv' is the template shortcut; hit `TAB' key to expand:
 (hyperrefv
