@@ -234,7 +234,7 @@ And then in a LaTeX document, somewhere in the preamble type ~hyperrefv~ and the
 
 Something similar would work with other template/completion packages like [[https://github.com/joaotavora/yasnippet][yasnippet]].
 
-(The above LaTeX might produce a PDF that then shows something like:
+(The above LaTeX might produce a PDF that has metadata like this:
 
 [[./screenshots/pdffonts-etc-hyperref-ex.jpg]]
 
