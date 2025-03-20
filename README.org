@@ -168,7 +168,7 @@ There's a number of template/completion packages; I've been using [[https://gith
 
 And then in my =~/.emacs.d/templates= file:
 #+begin_src elisp
-....
+;; <other shortcuts here>
 
 tex-mode
 ;; `hyperrefv' is the template shortcut; hit `TAB' key to expand:
