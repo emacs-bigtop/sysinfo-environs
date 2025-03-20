@@ -45,7 +45,8 @@
 ;; None currently.
 
 ;;; Code:
-
+(eval-when-compile (require 'cl-lib))
+(require 'cl-lib)
 
 ;;;; Helper functions
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
