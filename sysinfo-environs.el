@@ -507,3 +507,7 @@ from os-release and uname."
 ;;    (sysinfo-environs-parse-os-release)
 ;;    (when field
 ;;      field)))
+
+(provide 'sysinfo-environs)
+
+;;; sysinfo-environs.el ends here
