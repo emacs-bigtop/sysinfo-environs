@@ -149,8 +149,6 @@ Assumes operating system ID to be `OS-ID-NAME'.
     ;; (cons logo-search best-image)
     best-image))
 
-;; (setq testypath (sysinfo-environs--find-logo-path "endeavouros"))
-
 ;; Simulate os-release not found:
 ;;
 ;; (let* ((os-release-file nil)
@@ -192,8 +190,13 @@ Assumes operating system ID to be `OS-ID-NAME'.
                  (when os-release-raw
                    (sysinfo-environs-list-of-string-equals-string-into-alist
                     os-release-raw t)))))
-         (logo-name (cdr (assoc "LOGO" os-release)))
-         (os-id-name (cdr (assoc "ID" os-release))))
+         (logo-name (cdr (assoc "LOGO" (cdr os-release))))
+         (os-id-name (cdr (assoc "ID" (cdr os-release))))
+         )
+    ;; (list logo-name os-id-name)
+    ;; (list os-release-file os-release-raw os-release)
+    ;; os-release-raw
+    ;; os-release
     (when logo-name
       (let ((img-path (sysinfo-environs--find-logo-path logo-name os-id-name)))
         (setq os-release (nreverse
@@ -202,9 +205,17 @@ Assumes operating system ID to be `OS-ID-NAME'.
                                  (if img-path
                                      img-path
                                    "[not found]"))
-                           (nreverse os-release))))))))
+                           (nreverse os-release))))))
+    ))
 
 ;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
+;; (setq sysinfo-raws (sysinfo-environs-parse-os-release))
+;; (sysinfo-environs--find-logo-path "endeavouros" "endeavouros")
+;; (assoc "LOGO" (cdr sysinfo-raws))
+;; (assoc "ID" (cdr sysinfo-raws))
+;; (cdr (assoc "LOGO" (cdr sysinfo-raws)))
+;; (cdr (assoc "ID" (cdr sysinfo-raws)))
+
 
 ;;;;; uname -?
 (defun sysinfo-environs-parse-uname-info ()
