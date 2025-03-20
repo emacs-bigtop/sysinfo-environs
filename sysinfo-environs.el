@@ -99,15 +99,91 @@ and makes it into a list of alists of the form:
                 (t nil)))
          (os-release (when os-release-file
                        (sysinfo-environs-file-by-line-into-list
-                        os-release-file))))
-         (let ((os-release-file (or os-release-file
-                                    "[file not found]")))
-           (cons "*os-release info*"
-                 (cons
-                  (cons "`os-release' location" os-release-file)
-                  (when os-release 
-                    (sysinfo-environs-list-of-string-equals-string-into-alist
-                     os-release t)))))))
+                        os-release-file)))
+         (os-release-file (or os-release-file
+                                    "[file not found]"))
+         (os-release
+          (cons "*os-release info*"
+                (cons
+                 (cons "`os-release' location" os-release-file)
+                 (when os-release 
+                   (sysinfo-environs-list-of-string-equals-string-into-alist
+                    os-release t)))))
+         (logo-name (cdr (assoc "LOGO" os-release))))
+    (when logo-name
+      (let ((img-path (sysinfo-environs--find-logo-path logo-name)))
+        (setq os-release (nreverse
+                          (cons
+                           (cons "LOGO-IMAGE-PATH"
+                                 (if img-path
+                                     img-path
+                                   "[not found]"))
+                           (nreverse os-release))))))))
+
+
+
+;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
+
+(defun sysinfo-environs--find-logo-path (logo-name)
+  (let ((best-image nil)
+        (xdg-dirs (list
+                   "/usr/local/share/icons"
+                   (concat "/usr/share/" os-id-name)
+                   "/usr/share/pixmaps"
+                   "/run/current-system/profile/share/icons"                   
+                   "/usr/share/icons"))
+        (image-matcher (list
+                        "svg$"
+                        "1024x1024"
+                        "512x512"
+                        "256x256"
+                        "128x128"))
+        (logo-search '()))
+    (dolist (dir xdg-dirs)
+      (when (file-directory-p dir)
+        (let ((new-logo-hit 
+               (if (executable-find "find")
+                    (split-string
+                     (shell-command-to-string (concat "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
+                  (directory-files-recursively dir (concat logo-name ".*")))
+              )
+              )
+          (when new-logo-hit
+            (setq logo-search (append logo-search new-logo-hit ))))))
+    (setq logo-search (cl-remove "" logo-search :test 'string=))
+    (while (and (not best-image)
+                image-matcher)
+      (let ((logo-search-temp logo-search)
+            (img-style (car image-matcher)))
+        (while logo-search-temp
+          (let ((imagehit (car logo-search-temp)))
+            (when (string-match img-style imagehit)
+              (setq best-image imagehit))
+            (setq logo-search-temp (cdr logo-search-temp)))))
+      (setq image-matcher (cdr image-matcher))
+      )
+    ;; (dolist (betterimage image-matcher)
+    ;;   (setq logo-search-temp logo-search)
+    ;;   (while (and (= (length best-image) 0) logo-search-temp)
+    ;;     (let ((imagehit (car logo-search-temp)))
+    ;;       (when (string-match betterimage imagehit)
+    ;;         (setq best-image imagehit)
+    ;;         (let* ((old-image-matcher image-matcher)
+    ;;                (image-matcher nil)
+    ;;                (searchdone nil))
+    ;;           (while (and old-image-matcher
+    ;;                       (not searchdone))
+    ;;             (let ((top-list (car old-image-matcher)))
+    ;;               (setq image-matcher (cons top-list image-matcher))
+    ;;               (when (string= betterimage top-list)
+    ;;                 (setq searchdone t))
+    ;;               (setq old-image-matcher (cdr old-image-matcher))))))
+    ;;       (setq logo-search-temp (cdr logo-search-temp)))))
+    ;; (cons logo-search best-image)
+    best-image
+    ))
+
+;; (setq testypath (sysinfo-environs--find-logo-path "endeavouros"))
 
 ;; Simulate os-release not found:
 ;;
@@ -354,9 +430,7 @@ Should be called with a list of one or more `DATASETS'
 (see below interactive functions for examples), and an optional
 `TITLENAME' for the temp buffer."
   (let ((temp-buff-name (or titlename "*System Information*"))
-        (logo-name nil)
-        (os-is-name nil)
-        (best-image nil))
+        (os-is-name nil))
     (get-buffer-create temp-buff-name)
     (with-current-buffer temp-buff-name
       (read-only-mode -1)
@@ -404,38 +478,40 @@ Should be called with a list of one or more `DATASETS'
       (when (and (boundp 'visual-fill-column-mode)
                  visual-fill-column-mode)
         (visual-fill-column-mode -1)))
-    (when logo-name
-      (let ((xdg-dirs (list
-                       (concat "/usr/share/" os-id-name)
-                       "/usr/share/pixmaps"
-                       "/usr/local/share/icons"
-                       "/usr/share/icons"
-                       "/run/current-system/profile/share/icons"))
-            (logo-search '()))
-        (dolist (dir xdg-dirs)
-          (when (file-directory-p dir)
-            (setq logo-search
-                  (if (executable-find "find")
-                      (split-string
-                       (shell-command-to-string (concat "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
-                    (directory-files-recursively dir (concat logo-name ".*"))))))
-        (dolist (betterimage
-                 '(
-                   "svg$"
-                   "1024x1024" "512x512" "256x256" "128x128"
-                   )
-                 )
-          (setq logo-search-temp logo-search)
-          (while (and (= (length best-image) 0) logo-search-temp)
-            (let ((imagehit (car logo-search-temp)))
-              (when (string-match betterimage imagehit)
-                (setq best-image imagehit))
-              (setq logo-search-temp (cdr logo-search-temp)))))))
+    ;; (when logo-name
+    ;;   (let ((xdg-dirs (list
+    ;;                    (concat "/usr/share/" os-id-name)
+    ;;                    "/usr/share/pixmaps"
+    ;;                    "/usr/local/share/icons"
+    ;;                    "/usr/share/icons"
+    ;;                    "/run/current-system/profile/share/icons"))
+    ;;         (logo-search '()))
+    ;;     (dolist (dir xdg-dirs)
+    ;;       (when (file-directory-p dir)
+    ;;         (setq logo-search
+    ;;               (if (executable-find "find")
+    ;;                   (split-string
+    ;;                    (shell-command-to-string (concat "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
+    ;;                 (directory-files-recursively dir (concat logo-name ".*"))))))
+    ;;     (dolist (betterimage
+    ;;              '(
+    ;;                "svg$"
+    ;;                "1024x1024" "512x512" "256x256" "128x128"
+    ;;                )
+    ;;              )
+    ;;       (setq logo-search-temp logo-search)
+    ;;       (while (and (= (length best-image) 0) logo-search-temp)
+    ;;         (let ((imagehit (car logo-search-temp)))
+    ;;           (when (string-match betterimage imagehit)
+    ;;             (setq best-image imagehit))
+    ;;           (setq logo-search-temp (cdr logo-search-temp)))))))
       (with-current-buffer temp-buff-name
         (read-only-mode -1)
         (goto-char (point-max))
-        (when best-image 
-          (insert (concat "[[" best-image "]]")))
+        (let ((img-path (sysinfo-environs-look-up-field "os-release-info" "LOGO-IMAGE-PATH")))
+          (when (and img-path
+                     (not (string= img-path "[not found]")))
+            (insert (concat "[[" img-path "]]"))))
         (org-link-preview)
         (read-only-mode 1)
         (goto-char (point-min)))))
