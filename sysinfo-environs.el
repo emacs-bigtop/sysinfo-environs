@@ -109,9 +109,10 @@ and makes it into a list of alists of the form:
                  (when os-release 
                    (sysinfo-environs-list-of-string-equals-string-into-alist
                     os-release t)))))
-         (logo-name (cdr (assoc "LOGO" os-release))))
+         (logo-name (cdr (assoc "LOGO" os-release)))
+         (os-id-name (cdr (assoc "ID" os-release))))
     (when logo-name
-      (let ((img-path (sysinfo-environs--find-logo-path logo-name)))
+      (let ((img-path (sysinfo-environs--find-logo-path logo-name os-id-name)))
         (setq os-release (nreverse
                           (cons
                            (cons "LOGO-IMAGE-PATH"
@@ -120,11 +121,9 @@ and makes it into a list of alists of the form:
                                    "[not found]"))
                            (nreverse os-release))))))))
 
-
-
 ;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
 
-(defun sysinfo-environs--find-logo-path (logo-name)
+(defun sysinfo-environs--find-logo-path (logo-name os-id-name)
   (let ((best-image nil)
         (xdg-dirs (list
                    "/usr/local/share/icons"
@@ -180,8 +179,7 @@ and makes it into a list of alists of the form:
     ;;               (setq old-image-matcher (cdr old-image-matcher))))))
     ;;       (setq logo-search-temp (cdr logo-search-temp)))))
     ;; (cons logo-search best-image)
-    best-image
-    ))
+    best-image))
 
 ;; (setq testypath (sysinfo-environs--find-logo-path "endeavouros"))
 
@@ -446,12 +444,12 @@ Should be called with a list of one or more `DATASETS'
           (insert "|----|----|\n")
           (with-current-buffer sub-temp-buff
             (dolist (item sysinfo)
-              (when (and (string= dtitle "*os-release info*")
-                         (string= (car item) "LOGO"))
-                (setq logo-name (cdr item)))
-              (when (and (string= dtitle "*os-release info*")
-                         (string= (car item) "ID"))
-                (setq os-id-name (cdr item)))
+              ;; (when (and (string= dtitle "*os-release info*")
+              ;;            (string= (car item) "LOGO"))
+              ;;   (setq logo-name (cdr item)))
+              ;; (when (and (string= dtitle "*os-release info*")
+              ;;            (string= (car item) "ID"))
+              ;;   (setq os-id-name (cdr item)))
               (let* ((label (car item))
                      (value* (cdr item))
                      (value (cond ((stringp value*)
