@@ -40,11 +40,12 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 [Currently, ~sysinfo-environs-sysinfo~ tries in order:
 #+begin_src elisp
-'("/usr/share/icons" ;; usual place
-"/usr/local/share/icons" ;; if you've local thing
-"/run/current-system/profile/share/icons" ;; where they are on Guix
-                                          ;; (& maybe Nix?)
-)
+'("/usr/local/share/icons" ;; if you've a local thing
+  (concat "/usr/share/" os-id-name) ;; e.g. /usr/share/endeavouros
+  "/usr/share/pixmaps" ;; another place they might be
+  "/run/current-system/profile/share/icons" ;; where they are on Guix
+                                            ;; (& maybe Nix?)
+  "/usr/share/icons") ;; usual place
 #+end_src
 
 [[https://github.com/emacs-bigtop/sysinfo-environs/issues/new/choose][Open an issue]] if you're on a system where there should be system/distro/os icons and they're somewhere else and so  ~sysinfo-environs-sysinfo~ isn't finding them.]
