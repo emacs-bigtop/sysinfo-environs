@@ -1,4 +1,4 @@
-;;;; sysinfo-environ.el --- Display system information in various formats  -*- lexical-binding: t; -*-
+;;; sysinfo-environs.el --- Display system information in various formats  -*- lexical-binding: t; -*-
 
 ;; System Information and Environs
 
@@ -7,8 +7,8 @@
 ;; Author: ADD ME <addme@email.net>
 ;; Maintainer: ADD ME <addme@email.net>
 ;; URL: https://addme.com
-;; Package-Version: ADDME
-;; Version: ADDME
+;; Package-Version: 0.1
+;; Version: 0.1
 ;; Package-Requires: ((emacs "26.1") (org "9.4"))
 ;; Created: March 2025
 ;; Keywords: tools
@@ -50,24 +50,25 @@
 
 ;;;; Helper functions
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
-  "Splits a string into a lists of strings, counting
-`\n' (newlines) as dividers."
+  "Splits a string `LONGSTRING' into a lists of strings.
+\=(`\n' (newlines) are counted as dividers.\=)"
  (split-string longstring "\n"))
 
 (defun sysinfo-environs-list-of-string-equals-string-into-alist (strings &optional quoted)
-  "Transform list of strings into an alist of `(label . value)'.
+  "Transform list of strings `STRINGS' into an alist of `(label . value)'.
 
 Takes a list of strings which are of the form:
 NAME_MAYBE_WITH_UNDERSCORES=\"value\"
 
 and makes it into a list of alists of the form:
 `((LABEL1 . value1) (LABEL2 . value2) ....)'
-"
+
+Optional argument `QUOTED' escapes double-quotes in STRINGS."
   (mapcar
    (lambda (x) (let ((field (split-string x "=")))
                  (cons
                   (car field)
-                  (if quoted 
+                  (if quoted
                       (replace-regexp-in-string "\"" "" (cadr field))
                     (cadr field)))))
    strings))
@@ -106,7 +107,7 @@ and makes it into a list of alists of the form:
           (cons "*os-release info*"
                 (cons
                  (cons "`os-release' location" os-release-file)
-                 (when os-release 
+                 (when os-release
                    (sysinfo-environs-list-of-string-equals-string-into-alist
                     os-release t)))))
          (logo-name (cdr (assoc "LOGO" os-release)))
@@ -124,12 +125,16 @@ and makes it into a list of alists of the form:
 ;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
 
 (defun sysinfo-environs--find-logo-path (logo-name os-id-name)
+  "Find a path to the distributions `LOGO-NAME' image file.
+
+Assumes operating system ID to be `OS-ID-NAME'.
+\=(Tries to use .svg or highest resolution .png.\=)"
   (let ((best-image nil)
         (xdg-dirs (list
                    "/usr/local/share/icons"
                    (concat "/usr/share/" os-id-name)
                    "/usr/share/pixmaps"
-                   "/run/current-system/profile/share/icons"                   
+                   "/run/current-system/profile/share/icons"
                    "/usr/share/icons"))
         (image-matcher (list
                         "svg$"
@@ -140,13 +145,11 @@ and makes it into a list of alists of the form:
         (logo-search '()))
     (dolist (dir xdg-dirs)
       (when (file-directory-p dir)
-        (let ((new-logo-hit 
+        (let ((new-logo-hit
                (if (executable-find "find")
                     (split-string
                      (shell-command-to-string (concat "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
-                  (directory-files-recursively dir (concat logo-name ".*")))
-              )
-              )
+                  (directory-files-recursively dir (concat logo-name ".*")))))
           (when new-logo-hit
             (setq logo-search (append logo-search new-logo-hit ))))))
     (setq logo-search (cl-remove "" logo-search :test 'string=))
@@ -159,8 +162,7 @@ and makes it into a list of alists of the form:
             (when (string-match img-style imagehit)
               (setq best-image imagehit))
             (setq logo-search-temp (cdr logo-search-temp)))))
-      (setq image-matcher (cdr image-matcher))
-      )
+      (setq image-matcher (cdr image-matcher)))
     ;; (dolist (betterimage image-matcher)
     ;;   (setq logo-search-temp logo-search)
     ;;   (while (and (= (length best-image) 0) logo-search-temp)
@@ -189,11 +191,11 @@ and makes it into a list of alists of the form:
 ;;        (os-release-file (or os-release-file
 ;;                                     "[file not found]"))
 ;;        (os-release nil)
-;;        (os-release-fake 
+;;        (os-release-fake
 ;;         (cons "*os-release info*"
 ;;               (cons
 ;;                (cons "`os-release' location" os-release-file)
-;;                (when os-release 
+;;                (when os-release
 ;;                  (sysinfo-environs-list-of-string-equals-string-into-alist
 ;;                   os-release t))))))
 ;;     (sysinfo-environs-sysinfo
@@ -215,7 +217,7 @@ and makes it into a list of alists of the form:
         (uname-info '()))
     (cl-loop for (key . value) in params
              do
-             (setq uname-info 
+             (setq uname-info
                   (cons
                    (cons key
                          (replace-regexp-in-string "\n$" ""
@@ -226,7 +228,7 @@ and makes it into a list of alists of the form:
 
 ;;;;; sysinfo from Emacs itself
 (defun sysinfo-environs-emacs-known-sysinfo ()
-  "Creates an alist from the few system variables Emacs knows."
+  "Create an alist from the few system variables Emacs knows."
   (let ((emacs-sysinfo
          `(("system-name" .
             ,(if (version< emacs-version "25.1")
@@ -238,19 +240,19 @@ and makes it into a list of alists of the form:
 
 ;;;;; Emacs information about itself
 (defun sysinfo-environs-emacs-self-info ()
-  "Creates an alist about things Emacs knows about itself."
+  "Create an alist about things Emacs knows about itself."
   (let ((common-features
          '(emacs-version
            emacs-build-number
            system-configuration))
-        (if-featurep
-         '(motif
-           gtk
-           x-toolkit
-           ns
-           haiku
-           ;; cairo
-           ))
+        ;; (if-featurep
+        ;;  '(motif
+        ;;    gtk
+        ;;    x-toolkit
+        ;;    ns
+        ;;    haiku
+        ;;    ;; cairo
+        ;;    ))
         ;; (bound-featurep
         ;;  '(x-toolkit-scroll-bars))
         (emacs-self-info nil))
@@ -294,14 +296,14 @@ and makes it into a list of alists of the form:
            emacs-self-info))
     (if (featurep 'cairo)
         (setq emacs-self-info
-              (cons 
+              (cons
                (cons
                 "cairo-version"
                 cairo-version-string)
                emacs-self-info)))
     (if (boundp 'x-toolkit-scroll-bars)
       (setq emacs-self-info
-            (cons 
+            (cons
              (cons
               "scrollbars-toolkit"
               (if (memq x-toolkit-scroll-bars '(xaw xaw3d))
@@ -312,7 +314,7 @@ and makes it into a list of alists of the form:
              emacs-self-info)))
     (if emacs-build-time
         (setq emacs-self-info
-              (cons 
+              (cons
                (cons
                 "emacs-build-time"
                 (format-time-string "%Y-%m-%d %H:%M:%S" emacs-build-time))
@@ -363,21 +365,21 @@ For use in helper functions and elsewhere."
 
 ;;;###autoload
 (defun sysinfo-environs-look-up-field (&optional dataset fieldname)
-  "Return the value of a sysinfo `FIELD' from a given `DATASET' source.
+  "Return the value of a sysinfo `FIELDNAME' from a given `DATASET' source.
 
 Can be used interactively, will prompt user for `DATASET',
 listing from all possibilities from `sysinfo-environs-dataset-alist',
-and then listing all possible `FIELD's for chosen data source."
+and then listing all possible `FIELDNAME's for chosen data source."
   (interactive)
   (let* ((choices sysinfo-environs-dataset-alist)
          (message-p (null (and dataset fieldname)))
          (dataset
-          (cdr 
+          (cdr
            (if dataset
                ;; if dataset is passed as string
                (if (stringp dataset)
                    (eval
-                    (cdr 
+                    (cdr
                      (assoc dataset choices)))
                  ;; otherwise dataset is just passed as function
                  dataset)
@@ -397,14 +399,14 @@ and then listing all possible `FIELD's for chosen data source."
               ;; otherwise ask user for field, presenting
               ;; the choices from `dataset'
               (and (called-interactively-p 'any)
-                   (assoc 
+                   (assoc
                     (completing-read
                      "Return value for field: "
                      (cl-loop for (key . _) in dataset
                               collect key))
                     dataset))))
          (value
-          (when field 
+          (when field
             (cdr field))))
     ;; if called interactively, message user
     (if field
@@ -418,14 +420,14 @@ and then listing all possible `FIELD's for chosen data source."
 ;; examples:
 ;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type")
 ;; (sysinfo-environs-look-up-field "emacs-info")
-;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type") 
+;; (sysinfo-environs-look-up-field (sysinfo-environs-emacs-known-sysinfo) "system-type")
 
+;;; Main function
 (defun sysinfo-environs-sysinfo (datasets &optional titlename)
-  "Main function for creating temp buffers with Org tables
-containing system information.
+  "Create temp buffers with Org tables containing system information.
 
 Should be called with a list of one or more `DATASETS'
-(see below interactive functions for examples), and an optional
+\=(see below interactive functions for examples\=), and an optional
 `TITLENAME' for the temp buffer."
   (let ((temp-buff-name (or titlename "*System Information*"))
         (os-is-name nil))
@@ -433,7 +435,7 @@ Should be called with a list of one or more `DATASETS'
     (with-current-buffer temp-buff-name
       (read-only-mode -1)
       (erase-buffer)
-      (while datasets 
+      (while datasets
         (let* ((dataset (car datasets))
                (dtitle (car dataset))
                (sysinfo (cdr dataset))
@@ -521,7 +523,7 @@ Should be called with a list of one or more `DATASETS'
   "Interactive function to display `/etc/os-release' info."
   (interactive)
   (sysinfo-environs-sysinfo
-   (list 
+   (list
     (sysinfo-environs-parse-os-release))
    "*OS Release Info*"))
 
@@ -530,14 +532,13 @@ Should be called with a list of one or more `DATASETS'
   "Interactive function to display `uname -?' info."
   (interactive)
   (sysinfo-environs-sysinfo
-   (list 
+   (list
     (sysinfo-environs-parse-uname-info))
    "*OS uname Info*"))
 
 ;;;###autoload
 (defun sysinfo-environs-os-release-and-uname-display ()
-  "Interactive function to display all system information
-from os-release and uname."
+  "Interactive function to display info from os-release and uname."
   (interactive)
   (sysinfo-environs-sysinfo
    (list
@@ -568,6 +569,7 @@ from os-release and uname."
 
 ;;; printenv things, probably not good
 (defun sysinfo-environs-split-paths-with-newlines (input)
+  "Unused function for $ENV things from `INPUT'."
   (let ((new-alist nil))
     (dolist (item input)
       (setq new-alist
@@ -582,6 +584,7 @@ from os-release and uname."
     new-alist))
 
 (defun sysinfo-environs-get-all-env ()
+  "Unused function for $ENV things."
   (cons "*environment variables*"
         ;; (sysinfo-environs-split-paths-with-newlines
          (sysinfo-environs-list-of-string-equals-string-into-alist
