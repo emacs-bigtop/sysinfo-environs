@@ -48,6 +48,15 @@
 (eval-when-compile (require 'cl-lib))
 (require 'cl-lib)
 
+(defgroup sysinfo-environs nil
+  "Display system information in various formats."
+  :group 'tools)
+
+(defcustom sysinfo-environs-try-to-find-unspecified-logo t
+  "Search for logo-name by `ID' even if `os-release' doesn't specify."
+  :group 'sysinfo-environs
+  :type 'boolean)
+
 ;;;; Helper functions
 ;;;###autoload
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
@@ -195,23 +204,30 @@ Assumes operating system ID to be `OS-ID-NAME'.
                  (when os-release-raw
                    (sysinfo-environs-list-of-string-equals-string-into-alist
                     os-release-raw t)))))
-         (logo-name (cdr (assoc "LOGO" (cdr os-release))))
          (os-id-name (cdr (assoc "ID" (cdr os-release))))
-         )
+         (logo-name (or
+                     (cdr (assoc "LOGO" (cdr os-release)))
+                     (if sysinfo-environs-try-to-find-unspecified-logo
+                         os-id-name
+                       nil))))
     ;; (list logo-name os-id-name)
     ;; (list os-release-file os-release-raw os-release)
-    ;; os-release-raw
+    ;; (list os-release-file os-release-raw os-release logo-name)
     ;; os-release
-    (when logo-name
-      (let ((img-path (sysinfo-environs--find-logo-path logo-name os-id-name)))
+
+    (let ((img-path (if logo-name 
+                        (sysinfo-environs--find-logo-path
+                         logo-name os-id-name)
+                      nil)))
+      (when logo-name
         (setq os-release (nreverse
                           (cons
                            (cons "LOGO-IMAGE-PATH"
                                  (if img-path
                                      img-path
                                    "[not found]"))
-                           (nreverse os-release))))))
-    ))
+                           (nreverse os-release)))))
+      os-release)))
 
 ;; (cdr (assoc "LOGO" (cdr (sysinfo-environs-parse-os-release))))
 ;; (setq sysinfo-raws (sysinfo-environs-parse-os-release))
@@ -544,7 +560,7 @@ Should be called with a list of one or more `DATASETS'
 ;;;; Interactive functions
 
 ;;;###autoload
-(defun sysinfo-environs-os-release-info ()
+(defun sysinfo-environs-os-release-info-display ()
   "Interactive function to display `/etc/os-release' info."
   (interactive)
   (sysinfo-environs-sysinfo
