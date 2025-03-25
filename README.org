@@ -57,7 +57,7 @@ Another screenshot, showing more system information:
 [[./screenshots/sysinfo-environs_full-ex.jpg]]
 
 *** eFetch
-Beginnings of a screenfetch/neofetch/fastfetch thing, called interactively with ~sysinfo-environs-neofetch-like~ (does not depend on a *fetch, trying to implement with minimal external dependencies):
+Beginnings of a screenfetch/neofetch/fastfetch thing, called interactively with ~sysinfo-environs-neofetch-like~ (does not depend on a *fetch; trying to (re-)implement *fetch-like things inside of Emacs with minimal external dependencies):
 
 - Guix (on laptop, as you can see):
 [[./screenshots/guix-(n)E(o)fetch.jpg]]
