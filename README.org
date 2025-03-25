@@ -35,6 +35,7 @@ For the latter, currently the following functions are defined and can be used as
 - ~sysinfo-environs-os-release-and-uname-display~: show both of the previous 
 - ~sysinfo-environs-emacs-self-info-display~: show information about your Emacs (version, toolkit &c.)
 - ~sysinfo-environs-full-sys-info-display~: show all the information that Emacs System Information and Environs can display. [currently this is all of the above, plus what very basic system information Emacs knows about your OS]. this is encoded in variable ~sysinfo-environs-dataset-alist~.
+[ *and more not yet documented here* ]  
 
 Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the name of the icon/image for the distro, the function ~sysinfo-environs-sysinfo~ tries to find the appropriate image file (in the best resolution, the ~.svg~ if possible) on your system, and any interactive functions which display system information involving the information from ~/etc/os-release~ will try to display this image in the temp buffer:
 
@@ -54,6 +55,13 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 Another screenshot, showing more system information:
 [[./screenshots/sysinfo-environs_full-ex.jpg]]
+
+*** eFetch
+Beginnings of a screenfetch/neofetch/fastfetch thing, called interactively with ~sysinfo-environs-neofetch-like~:
+
+[[./screenshots/guix-(n)E(o)fetch.jpg]]
+
+[[./screenshots/alpine-(n)E(o)fetch.png]]
 
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
