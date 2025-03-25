@@ -1,5 +1,3 @@
-#+options: f:t # for github footnotes to work
-
 *Nb.: work-in-progress, unstable/incomplete.*
 
 if you really want to use, clone and load or use an advanced package manager like [[https://github.com/progfolio/elpaca][Elpaca]].
@@ -10,6 +8,22 @@ E.g.,
 (use-package sysinfo-environs
   :ensure (:wait t :host github :repo "emacs-bigtop/sysinfo-environs")
   :demand t
+  :config
+  (setq this-system-os
+        (let ((idlike
+               (sysinfo-environs-look-up-field "os-release-info" "ID_LIKE")))
+          (if idlike
+              idlike
+            (sysinfo-environs-look-up-field "os-release-info" "ID")))))
+#+end_src
+
+Or Emacs 30+ built-in ~package-vc~:
+
+#+begin_src elisp
+(use-package sysinfo-environs
+  :vc (sysinfo-environs :url "https://github.com/emacs-bigtop/sysinfo-environs"
+                        :branch "main")
+  :ensure t
   :config
   (setq this-system-os
         (let ((idlike
@@ -35,7 +49,6 @@ For the latter, currently the following functions are defined and can be used as
 - ~sysinfo-environs-os-release-and-uname-display~: show both of the previous 
 - ~sysinfo-environs-emacs-self-info-display~: show information about your Emacs (version, toolkit &c.)
 - ~sysinfo-environs-full-sys-info-display~: show all the information that Emacs System Information and Environs can display. [currently this is all of the above, plus what very basic system information Emacs knows about your OS]. this is encoded in variable ~sysinfo-environs-dataset-alist~.
-[ *and more not yet documented here* ]  
 
 Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the name of the icon/image for the distro, the function ~sysinfo-environs-sysinfo~ tries to find the appropriate image file (in the best resolution, the ~.svg~ if possible) on your system, and any interactive functions which display system information involving the information from ~/etc/os-release~ will try to display this image in the temp buffer:
 
@@ -55,18 +68,6 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 
 Another screenshot, showing more system information:
 [[./screenshots/sysinfo-environs_full-ex.jpg]]
-
-*** eFetch
-Beginnings of a screenfetch/neofetch/fastfetch thing, called interactively with ~sysinfo-environs-neofetch-like~ (does not depend on a *fetch; trying to (re-)implement *fetch-like things inside of Emacs with minimal external dependencies):
-
-- Guix (on laptop, as you can see):
-[[./screenshots/guix-(n)E(o)fetch.jpg]]
-
-- Alpine Linux (on a different laptop):
-[[./screenshots/alpine-(n)E(o)fetch.png]]
-
-- CachyOS (on a desktop; you can see it's not quite working yet):
-  [[./screenshots/cachyos-(n)E(o)fetch.jpg]]
 
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
@@ -115,14 +116,10 @@ If you're using a package manager like Elpaca, you'll want to use ~:ensure (:wai
 And so, as in the above config example, you could set a variable which gives you the distro that Emacs is running under, and so you could do something like:
 
 #+begin_src elisp
-(if (string= this-system-os "guix")
-    ;; if on Guix
-    (require 'pdf-tools)
-  ;; otherise
-    (use-package pdf-tools
-         :ensure t
-         :config
-         (pdf-tools-install 'no-query)))
+ (use-package pdf-tools
+      :ensure (if (string= this-system-os "guix") nil t)
+      :config
+      (pdf-tools-install 'no-query))
 #+end_src
 
 (This example is for one of my use-cases: I generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, I have to use Guix's own packaged version of ~emacs-pdf-tools~ because [[https://pdftools.wiki][PDF Tools]] wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here I use ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
