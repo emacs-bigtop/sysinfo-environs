@@ -115,10 +115,14 @@ If you're using a package manager like Elpaca, you'll want to use ~:ensure (:wai
 And so, as in the above config example, you could set a variable which gives you the distro that Emacs is running under, and so you could do something like:
 
 #+begin_src elisp
- (use-package pdf-tools
-      :ensure (if (string= this-system-os "guix") nil t)
-      :config
-      (pdf-tools-install 'no-query))
+(if (string= this-system-os "guix")
+    ;; if on Guix
+    (require 'pdf-tools)
+  ;; otherise
+    (use-package pdf-tools
+         :ensure t
+         :config
+         (pdf-tools-install 'no-query)))
 #+end_src
 
 (This example is for one of my use-cases: I generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, I have to use Guix's own packaged version of ~emacs-pdf-tools~ because [[https://pdftools.wiki][PDF Tools]] wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here I use ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
