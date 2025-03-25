@@ -1,3 +1,5 @@
+#+options: f:t # for github footnotes to work
+
 *Nb.: work-in-progress, unstable/incomplete.*
 
 if you really want to use, clone and load or use an advanced package manager like [[https://github.com/progfolio/elpaca][Elpaca]].
