@@ -174,24 +174,24 @@ Assumes operating system ID to be `OS-ID-NAME'.
 
 ;; Simulate os-release not found:
 ;;
-;; (let* ((os-release-file nil)
-;;        (os-release-file (or os-release-file
-;;                                     "[file not found]"))
-;;        (os-release nil)
-;;        (os-release-fake
-;;         (cons "*os-release info*"
-;;               (cons
-;;                (cons "`os-release' location" os-release-file)
-;;                (when os-release
-;;                  (sysinfo-environs-list-of-string-equals-string-into-alist
-;;                   os-release t))))))
-;;     (sysinfo-environs-sysinfo
-;;    (list
-;;     (sysinfo-environs-parse-uname-info)
-;;     os-release-fake)
-;;    "*Simulated System Info*")
-;;     ;; (sysinfo-environs-full-sys-info)
-;;     )
+(let* ((os-release-file nil)
+       (os-release-file (or os-release-file
+                                    "[file not found]"))
+       (os-release nil)
+       (os-release-fake
+        (cons "*os-release info*"
+              (cons
+               (cons "`os-release' location" os-release-file)
+               (when os-release
+                 (sysinfo-environs-list-of-string-equals-string-into-alist
+                  os-release t))))))
+    (sysinfo-environs-sysinfo
+   (list
+    (sysinfo-environs-parse-uname-info)
+    os-release-fake)
+   "*Simulated System Info*")
+    ;; (sysinfo-environs-full-sys-info)
+    )
 
 ;;;###autoload
 (defun sysinfo-environs-parse-os-release ()
@@ -213,9 +213,10 @@ Assumes operating system ID to be `OS-ID-NAME'.
                  (cons "`os-release' location" os-release-file)
                  ;; TODO:
                  ;; maybe test for symlink and show pointer??
-                 (when os-release-raw
+                 (if os-release-raw
                    (sysinfo-environs-list-of-string-equals-string-into-alist
-                    os-release-raw t)))))
+                    os-release-raw t)
+                   os-release-file))))
          (os-id-name (cdr (assoc "ID" (cdr os-release))))
          (logo-name (or
                      (cdr (assoc "LOGO" (cdr os-release)))
