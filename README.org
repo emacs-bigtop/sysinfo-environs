@@ -33,6 +33,21 @@ Or Emacs 30+ built-in ~package-vc~:
             (sysinfo-environs-look-up-field "os-release-info" "ID")))))
 #+end_src
 
+Or quelpa:
+
+#+begin_src elisp
+(use-package sysinfo-environs
+  :quelpa (sysinfo-environs :fetcher github :repo "emacs-bigtop/sysinfo-environs")
+  :ensure t
+  :config
+  (setq this-system-os
+        (let ((idlike
+               (sysinfo-environs-look-up-field "os-release-info" "ID_LIKE")))
+          (if idlike
+              idlike
+            (sysinfo-environs-look-up-field "os-release-info" "ID")))))
+#+end_src
+
 (See below discussion for why these options.)
 
 * Emacs System Information and Environs
