@@ -59,9 +59,14 @@ Another screenshot, showing more system information:
 *** eFetch
 Beginnings of a screenfetch/neofetch/fastfetch thing, called interactively with ~sysinfo-environs-neofetch-like~:
 
+- Guix (on laptop, as you can see):
 [[./screenshots/guix-(n)E(o)fetch.jpg]]
 
+- Alpine Linux (on a different laptop):
 [[./screenshots/alpine-(n)E(o)fetch.png]]
+
+- CachyOS (on a desktop; you can see it's not quite working yet):
+  [[./screenshots/cachyos-(n)E(o)fetch.jpg]]
 
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
