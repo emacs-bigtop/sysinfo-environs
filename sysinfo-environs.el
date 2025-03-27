@@ -393,6 +393,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;         )))))
 
 ;;;;; $ENV
+
+;;;###autoload
 (defun sysinfo-environs-get-all-env ()
   "Unused function for $ENV things."
   (cons "*environment variables*"
@@ -402,6 +404,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
                      (shell-command-to-string "printenv")))
                    :test 'equal)))
 
+;;;###autoload
 (defun sysinfo-environs-gui-env ()
   "Return likely GUI environment (i.e., WM/DE)."
   (let ((xdg-current-desktop-top
@@ -431,6 +434,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;; (setq sysinfo-env-vars (sysinfo-environs-get-all-env))
 
 ;;;;; /sys/devices/virtual/dmi/id
+
+;;;###autoload
 (defun sysinfo-environs-read-sys-devices-virtual-dmi-ids ()
   "Get accessible hardware info encoded in `/sys/devices/virtual/dmi/id'."
 (let* ((virtual-device-ids-dir "/sys/devices/virtual/dmi/id")
@@ -510,6 +515,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
     ("sys-devices-virtual-dmi-info" . (sysinfo-environs-read-sys-devices-virtual-dmi-ids)))
   "An alist of all of the datasources and some names for them.")
 
+;;;###autoload
 (defun sysinfo-environs-dataset-bare-list ()
   "Strips out the pretty names from `sysinfo-environs-dataset-alist'.
 For use in helper functions and elsewhere."
@@ -654,6 +660,8 @@ Should be called with a list of one or more `DATASETS'
         (goto-char (point-min)))))
 
 ;;;; uptime
+
+;;;###autoload
 (defun sysinfo-environ-sys-uptime ()
   "Get system uptime."
   (interactive)
