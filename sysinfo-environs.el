@@ -67,6 +67,18 @@
   :group 'sysinfo-environs
   :type 'boolean)
 
+(defcustom sysinfo-environs-dataset-alist
+  "An alist of all of the datasources and some names for them."
+  '(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
+    ("emacs-self-info" . (sysinfo-environs-emacs-self-info))
+    ("uname-info" . (sysinfo-environs-parse-uname-info))
+    ("os-release-info" . (sysinfo-environs-parse-os-release))
+    ("env-vars-info" . (sysinfo-environs-get-all-env))
+    ("sys-devices-virtual-dmi-info" . (sysinfo-environs-read-sys-devices-virtual-dmi-ids)))
+  :group 'sysinfo-environs
+  :type 'list)
+
+
 ;;;; Helper functions
 ;;;###autoload
 (defun sysinfo-environs-newlines-string-into-line-list (longstring)
@@ -497,16 +509,6 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;           (cons
 ;;            (cons )
 ;;            interfaces))))
-
-;;;;; list of all sources
-(defvar sysinfo-environs-dataset-alist
-  '(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
-    ("emacs-self-info" . (sysinfo-environs-emacs-self-info))
-    ("uname-info" . (sysinfo-environs-parse-uname-info))
-    ("os-release-info" . (sysinfo-environs-parse-os-release))
-    ("env-vars-info" . (sysinfo-environs-get-all-env))
-    ("sys-devices-virtual-dmi-info" . (sysinfo-environs-read-sys-devices-virtual-dmi-ids)))
-  "An alist of all of the datasources and some names for them.")
 
 (defun sysinfo-environs-dataset-bare-list ()
   "Strips out the pretty names from `sysinfo-environs-dataset-alist'.
