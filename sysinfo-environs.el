@@ -1,4 +1,4 @@
-;;; sysinfo-environs.el --- Display system information in various formats  -*- lexical-binding: t; -*-
+;; sysinfo-environs.el --- Display system information in various formats  -*- lexical-binding: t; -*-
 
 ;; System Information and Environs
 
@@ -174,24 +174,24 @@ Assumes operating system ID to be `OS-ID-NAME'.
 
 ;; Simulate os-release not found:
 ;;
-(let* ((os-release-file nil)
-       (os-release-file (or os-release-file
-                                    "[file not found]"))
-       (os-release nil)
-       (os-release-fake
-        (cons "*os-release info*"
-              (cons
-               (cons "`os-release' location" os-release-file)
-               (when os-release
-                 (sysinfo-environs-list-of-string-equals-string-into-alist
-                  os-release t))))))
-    (sysinfo-environs-sysinfo
-   (list
-    (sysinfo-environs-parse-uname-info)
-    os-release-fake)
-   "*Simulated System Info*")
-    ;; (sysinfo-environs-full-sys-info)
-    )
+;; (let* ((os-release-file nil)
+;;        (os-release-file (or os-release-file
+;;                                     "[file not found]"))
+;;        (os-release nil)
+;;        (os-release-fake
+;;         (cons "*os-release info*"
+;;               (cons
+;;                (cons "`os-release' location" os-release-file)
+;;                (when os-release
+;;                  (sysinfo-environs-list-of-string-equals-string-into-alist
+;;                   os-release t))))))
+;;     (sysinfo-environs-sysinfo
+;;    (list
+;;     (sysinfo-environs-parse-uname-info)
+;;     os-release-fake)
+;;    "*Simulated System Info*")
+;;     ;; (sysinfo-environs-full-sys-info)
+;;     )
 
 ;;;###autoload
 (defun sysinfo-environs-parse-os-release ()
@@ -855,17 +855,6 @@ Should be called with a list of one or more `DATASETS'
 ;;                 (cdr item)))
 ;;              new-alist)))
 ;;     new-alist))
-
-(defun sysinfo-environs-get-all-env ()
-  "Unused function for $ENV things."
-  (cons "*environment variables*"
-        (cl-remove '("") 
-                   (sysinfo-environs-list-of-string-equals-string-into-alist
-                    (sysinfo-environs-newlines-string-into-line-list
-                     (shell-command-to-string "printenv")))
-                   :test 'equal)))
-
-
 
 ;; wm/de:
 ;; check $XDG_CURRENT_DESKTOP (need to check if contains ":
