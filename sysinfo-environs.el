@@ -48,6 +48,8 @@
 (eval-when-compile (require 'cl-lib))
 (require 'cl-lib)
 
+(require 'org)
+
 (defgroup sysinfo-environs nil
   "Display system information in various formats."
   :group 'tools)
