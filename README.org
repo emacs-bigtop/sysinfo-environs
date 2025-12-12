@@ -262,7 +262,12 @@ tex-mode
 And then in a LaTeX document, somewhere in the preamble type ~hyperrefv~ and then hit ~TAB~ and it expands into something like:
 
 #+begin_src tex
-\usepackage[pdfusetitle,pdfcreator={TeX 3.141592653 (TeX Live 2026/dev/Arch Linux) using GNU Emacs 30.2 (build 2 [of 2025-09-10 13:32:34], Lucid/Athena-toolkit (X toolkit), Xaw3d scroll bars, cairo version 1.18.4) with AUCTeX 14.1.0 on CachyOS (Linux 6.18.0-3-cachyos [\#1 SMP PREEMPT＿DYNAMIC Sun, 07 Dec 2025 09:39:03 +0000])}]{hyperref}
+\usepackage[pdfusetitle,pdfcreator={TeX 3.141592653 (TeX Live
+2026/dev/Arch Linux) using GNU Emacs 30.2 (build 2 [of 2025-09-10
+13:32:34], Lucid/Athena-toolkit (X toolkit), Xaw3d scroll bars,
+cairo version 1.18.4) with AUCTeX 14.1.0 on CachyOS (Linux
+6.18.0-3-cachyos [\#1 SMP PREEMPT＿DYNAMIC Sun, 07 Dec 2025
+09:39:03 +0000])}]{hyperref}
 #+end_src
 
 Something similar would work with other template/completion packages like [[https://github.com/joaotavora/yasnippet][yasnippet]].
