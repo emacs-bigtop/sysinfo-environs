@@ -216,8 +216,10 @@ tex-mode
     ;; make a "\" TeX-command prefix
     (make-string 1 ?\\)
     "usepackage[pdfusetitle,pdfcreator={"
+    ;; Texlive version information
+    (car (string-lines (shell-command-to-string "tex --version")))
     ;; Emacs specs
-    "GNU Emacs "
+    " using GNU Emacs "
     (sysinfo-environs-look-up-field "emacs-self-info" "emacs-version")
     " (build "
     (sysinfo-environs-look-up-field "emacs-self-info" "emacs-build-number")
@@ -260,7 +262,7 @@ tex-mode
 And then in a LaTeX document, somewhere in the preamble type ~hyperrefv~ and then hit ~TAB~ and it expands into something like:
 
 #+begin_src tex
-\usepackage[pdfusetitle,pdfcreator={GNU Emacs 30.1 (build 2 [of 2025-03-04 20:01:02], Lucid/Athena-toolkit (X toolkit), Xaw3d scroll bars, cairo version 1.18.2) with AUCTeX 14.0.9 on EndeavourOS (Linux 6.13.5-1-cachyos [\#1 SMP PREEMPT＿DYNAMIC Fri, 07 Mar 2025 08:15:41 +0000])}]{hyperref}
+\usepackage[pdfusetitle,pdfcreator={TeX 3.141592653 (TeX Live 2026/dev/Arch Linux) using GNU Emacs 30.2 (build 2 [of 2025-09-10 13:32:34], Lucid/Athena-toolkit (X toolkit), Xaw3d scroll bars, cairo version 1.18.4) with AUCTeX 14.1.0 on CachyOS (Linux 6.18.0-3-cachyos [\#1 SMP PREEMPT＿DYNAMIC Sun, 07 Dec 2025 09:39:03 +0000])}]{hyperref}
 #+end_src
 
 Something similar would work with other template/completion packages like [[https://github.com/joaotavora/yasnippet][yasnippet]].
