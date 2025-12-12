@@ -269,7 +269,7 @@ Something similar would work with other template/completion packages like [[http
 
 (The above LaTeX might produce a PDF that has metadata like this:
 
-[[./screenshots/pdffonts-etc-hyperref-ex.jpg]]
+[[./screenshots/pdffonts-etc-hyperref-ex2.jpg]]
 
 [output from [[https://github.com/emacsomancer/pdffontetc][PDF Fonts Etc.]]])
 
