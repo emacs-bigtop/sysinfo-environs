@@ -416,17 +416,24 @@ Assumes operating system ID to be `OS-ID-NAME'.
          (sysinfo-environs-look-up-field "env-vars-info" "XDG_SESSION_DESKTOP"))
         (session-desktop
          (sysinfo-environs-look-up-field "env-vars-info" "DESKTOP_SESSION")))
-    (cond ((not (or (string-empty-p xdg-current-desktop-top)
-                    (null xdg-current-desktop-top)))
-           xdg-current-desktop-top)
-          ((not (or (string-empty-p xdg-session-desktop)
+    (cond
+     ((and (not (or (string-empty-p xdg-session-desktop)
                     (null xdg-session-desktop)))
-           xdg-session-desktop)
-          ((not (or (string-empty-p session-desktop)
+           (not (or (string-empty-p session-desktop)
                     (null session-desktop)))
-           session-desktop)
-          ;; check for wmctrl...
-          (t nil))))
+           (not (string= xdg-session-desktop session-desktop)))
+      (concat xdg-session-desktop " " session-desktop))
+     ((not (or (string-empty-p xdg-current-desktop-top)
+               (null xdg-current-desktop-top)))
+      xdg-current-desktop-top)
+     ((not (or (string-empty-p xdg-session-desktop)
+               (null xdg-session-desktop)))
+      xdg-session-desktop)
+     ((not (or (string-empty-p session-desktop)
+               (null session-desktop)))
+      session-desktop)
+     ;; check for wmctrl...
+     (t nil))))
 
 ;; (setq my/wmde (sysinfo-environs-gui-env))
 ;; (setq sysinfo-env-vars (sysinfo-environs-get-all-env))
@@ -695,6 +702,14 @@ Should be called with a list of one or more `DATASETS'
                          " ("
                          machine ;; product_version or product_family
                          ")"))
+                      ;; ("Host" .
+                      ;;  ,(let ((product-name (lookup "sys-devices-virtual-dmi-info" "product_name")))
+                          
+                      ;;     concat
+                      ;;     (lookup "sys-devices-virtual-dmi-info" "product_name")
+                      ;;     " ("
+                      ;;     machine ;; product_version or product_family
+                      ;;     ")")))
                       ("Kernel" .
                        ,(concat
                         (lookup "uname-info" "KERNEL_NAME")

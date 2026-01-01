@@ -205,6 +205,8 @@ And then in my =~/.emacs.d/templates= file:
 tex-mode
 ;; `hyperrefv' is the template shortcut; hit `TAB' key to expand:
 (hyperrefv
+(let ((nativecomp (if (cl-search "NATIVE_COMP" system-configuration-features) t nil))
+      (puregtk (if (cl-search "PGTK" system-configuration-features) t nil)))
  ;; TeX chokes on _
  (replace-regexp-in-string
   "_" "＿"
@@ -229,6 +231,9 @@ tex-mode
         (concat " [of " eb-date "]")))
     ", "
     (sysinfo-environs-look-up-field "emacs-self-info" "toolkit")
+    ;; puregtk
+    (when puregtk
+       " PureGTK build")
     ;; if there is a scrollbars toolkit
     (let ((scrollb (sysinfo-environs-look-up-field "emacs-self-info" "scrollbars-toolkit")))
       (when (string= scrollb "none")
@@ -238,7 +243,9 @@ tex-mode
     ;; if there is cairo
     (let ((cairov (sysinfo-environs-look-up-field "emacs-self-info" "cairo-version")))
       (when cairov
-        (concat ", cairo version " cairov)))
+      (concat ", cairo version " cairov)))
+    (when nativecomp
+     ", with native compilation")
     ")"
     " with AUCTeX "
     AUCTeX-version
@@ -256,7 +263,7 @@ tex-mode
     ;; other kernel specs:
     (sysinfo-environs-look-up-field "uname-info" "KERNEL_SPECS")
     ;; called as arguments to TeX package `hyperref'
-    "])}]{hyperref}"))))
+    "])}]{hyperref}")))))
    #+end_src
 
 And then in a LaTeX document, somewhere in the preamble type ~hyperrefv~ and then hit ~TAB~ and it expands into something like:
@@ -277,6 +284,13 @@ Something similar would work with other template/completion packages like [[http
 [[./screenshots/pdffonts-etc-hyperref-ex2.jpg]]
 
 [output from [[https://github.com/emacsomancer/pdffontetc][PDF Fonts Etc.]]])
+
+Note, the updated code above also checks for native compilation and PureGTK builds, thus will now produce things like (note ~PureGTK build~ and ~with native compilation~ in the text):
+
+#+begin_src tex
+\usepackage[pdfusetitle,pdfcreator={TeX 3.141592653 (TeX Live 2025/Homebrew) using GNU Emacs 30.2 (build 1 [of 2025-11-14 17:02:42], GTK-toolkit (GTK 3.24.51) PureGTK build, no scroll bars, cairo version 1.18.4, with native compilation) with AUCTeX 14.1.0 on secureblue (powered by Fedora Atomic) (Linux 6.17.12-300.fc43.x8664 [\#1 SMP PREEMPTDYNAMIC Sat Dec 13 05:06:24 UTC 2025])}]{hyperref}
+#+end_src
+
 
 ** Other notes
 .....
