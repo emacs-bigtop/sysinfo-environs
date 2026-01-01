@@ -84,6 +84,21 @@ Since ~/etc/os-release~ defines a field ~LOGO~ which can be specified with the n
 Another screenshot, showing more system information:
 [[./screenshots/sysinfo-environs_full-ex.jpg]]
 
+** Building neofetch/fastfetch clone in elisp
+The beginnings of a neofetch/fastfetch function are to be found by calling ~sysinfo-environs-neofetch-like~.
+
+[[./screenshots/endeavour-neofetch-emacs.png]]
+
+[[./screenshots/alpine-(n)E(o)fetch.png]]
+
+[[./screenshots/guix-(n)E(o)fetch.jpg]]
+
+I plan to add more information at least about interesting Emacs build features (nativecomp, puregtk, &c.), as well as more system information.
+
+Also, still need to figure out rational fallbacks or other values to check on things like custom-built desktops, because right now.....
+
+[[./screenshots/cachyos-(n)E(o)fetch.jpg]]
+
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
