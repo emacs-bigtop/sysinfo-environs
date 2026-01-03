@@ -85,35 +85,41 @@ Another screenshot, showing more system information:
 [[./screenshots/sysinfo-environs_full-ex.jpg]]
 
 ** Building neofetch/fastfetch clone in elisp
-The beginnings of a neofetch/fastfetch function are to be found by calling ~sysinfo-environs-neofetch-like~.
+The beginnings of a neofetch/fastfetch function are to be found by calling ~sysinfo-environs-neofetch-like~. Some example screenshots below, with commentary.
 
+*** on [[https://endeavouros.com][EndeavourOS]] with [[https://stumpwm.github.io][StumpWM environment]]
 #+CAPTION: on [[https://endeavouros.com][EndeavourOS]] with [[https://stumpwm.github.io][StumpWM environment]]
 #+LABEL: endeavourstumpwm
 [[./screenshots/endeavour-neofetch-emacs.png]]
 
+*** on [[https://alpinelinux.org][Alpine Linux]] with [[https://github.com/ch11ng/exwm][EXWM environment]]
 #+CAPTION: on [[https://alpinelinux.org][Alpine Linux]] with [[https://github.com/ch11ng/exwm][EXWM environment]]
 #+LABEL: alpineexwm
 [[./screenshots/alpine-(n)E(o)fetch.png]]
 
+*** on [[https://guix.gnu.org][Guix]] with [[https://stumpwm.github.io][StumpWM environment]]
 #+CAPTION: on [[https://guix.gnu.org][Guix]] with [[https://stumpwm.github.io][StumpWM environment]]
 #+LABEL: guixstumpwm
 [[./screenshots/guix-(n)E(o)fetch.jpg]]
 
 We plan to add more information at least about interesting Emacs build features (nativecomp, puregtk, &c.), as well as more system information.
 
+*** on [[https://cachyos.org][CachyOS]] with [[https://kde.org/plasma-desktop][KDE Plasma 6 (Wayland) environment]]
 Also, still need to figure out rational fallbacks or other values to check on things like custom-built desktops, because right now some fields are not filled in very satisfactorily (and fastfast manages better on these cases).....
 
 #+CAPTION: on [[https://cachyos.org][CachyOS]] with [[https://kde.org/plasma-desktop][KDE Plasma 6 (Wayland) environment]]
 #+LABEL: cachyplasmawaydesk
 [[./screenshots/cachyos-(n)E(o)fetch.jpg]]
 
+*** on [[https://secureblue.dev][secureblue]] with [[https://swaywm.org][Sway environment]] (wayland)
 And in some places, the ~LOGO~ is not a reliable guide to the actual LOGO-IMAGE, as for [[https://secureblue.dev][secureblue]], where the =os-release= specified ~LOGO~ is "fedora-logo-icon", but none of the standard paths (we currently search =/usr/local/share/icons/=, =/usr/share/<distro-name>=, =/usr/share/pixmaps=, =/run/current-system/profile/share/icons= (for Guix), and =/usr/share/icons=).
 
 #+CAPTION: on [[https://secureblue.dev][secureblue]] with [[https://swaywm.org][Sway environment]] (wayland)
 #+LABEL: securebluesway
 [[./screenshots/neofetch+sysinfo-secureblue-emacs.png]]
 
-But in this case what appears to be the right logo icon is actually located at =/usr/share/pixmaps/fedora-logo-sprite.svg=. (currently in an unpushed branch, we currently just have a hack to find the right icon for secureblue....)
+But in this case what appears to be the right logo icon is actually located at =/usr/share/pixmaps/fedora-logo-sprite.svg=.  (Currently in an unpushed branch, where we currently just have a hack to find the right icon for secureblue....)
+
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
