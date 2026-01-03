@@ -87,18 +87,29 @@ Another screenshot, showing more system information:
 ** Building neofetch/fastfetch clone in elisp
 The beginnings of a neofetch/fastfetch function are to be found by calling ~sysinfo-environs-neofetch-like~.
 
+#+caption: on [[https://endeavouros.com][EndeavourOS]] with [[https://stumpwm.github.io][StumpWM environment]]
 [[./screenshots/endeavour-neofetch-emacs.png]]
 
+#+caption: on [[https://alpinelinux.org][Alpine Linux]] with [[https://github.com/ch11ng/exwm][EXWM environment]]
 [[./screenshots/alpine-(n)E(o)fetch.png]]
 
+#+caption: on [[https://guix.gnu.org][Guix]] with [[https://stumpwm.github.io][StumpWM environment]]
 [[./screenshots/guix-(n)E(o)fetch.jpg]]
 
-I plan to add more information at least about interesting Emacs build features (nativecomp, puregtk, &c.), as well as more system information.
+We plan to add more information at least about interesting Emacs build features (nativecomp, puregtk, &c.), as well as more system information.
 
-Also, still need to figure out rational fallbacks or other values to check on things like custom-built desktops, because right now.....
+Also, still need to figure out rational fallbacks or other values to check on things like custom-built desktops, because right now some fields are not filled in very satisfactorily (and fastfast manages better on these cases).....
 
+#+caption: on [[https://cachyos.org][CachyOS]] with [[https://kde.org/plasma-desktop][KDE Plasma 6 (Wayland) environment]]
 [[./screenshots/cachyos-(n)E(o)fetch.jpg]]
 
+And in some places, the ~LOGO~ is not a reliable guide to the actual LOGO-IMAGE, as for [[https://secureblue.dev][secureblue]], where the =os-release= specified ~LOGO~ is "fedora-logo-icon", but none of the standard paths (we currently search =/usr/local/share/icons/=, =/usr/share/<distro-name>=, =/usr/share/pixmaps=, =/run/current-system/profile/share/icons= (for Guix), and =/usr/share/icons=).
+
+#+caption: on [[https://secureblue.dev][secureblue]] with [[https://swaywm.org][Sway environment]] (wayland)
+
+[[./screenshots/neofetch+sysinfo-secureblue-emacs.png]]
+
+But in this case what appears to be the right logo icon is actually located at =/usr/share/pixmaps/fedora-logo-sprite.svg=. (currently in an unpushed branch, we currently just have a hack to find the right icon for secureblue....)
 ** ~sysinfo-environs-look-up-field~ and your ~init.el~
 For particular pieces of information, you can use the ~sysinfo-environs-look-up-field~ function, either in Elisp or as an interactive command.
 
@@ -152,7 +163,7 @@ And so, as in the above config example, you could set a variable which gives you
       (pdf-tools-install 'no-query))
 #+end_src
 
-(This example is for one of my use-cases: I generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, I have to use Guix's own packaged version of ~emacs-pdf-tools~ because [[https://pdftools.wiki][PDF Tools]] wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here I use ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
+(This example is for one of my use-cases: some of us (=emacsomancer=) generally want to use Elpaca to manage packages across all of my machines, regardless of which particular OS they're running, but on Guix, he havs to use Guix's own packaged version of ~emacs-pdf-tools~ because [[https://pdftools.wiki][PDF Tools]] wants to install other packages and then compile itself and this won't work on Guix, but works on, e.g., Arch. So here he uses ~use-package~ to ~require~ PDF Tools, but only try to have Elpaca install PDF Tools itself (rather than relying on the OS to already have installed it) when the machine *isn't* running on Guix.)
 
 Because of the difference between the ~os-release~ ~ID~ and ~ID_LIKE~ values, and the fact that not all distros will set ~ID_LIKE~, you might want to set your "this-system-os" variable (whatever you want to call it) like this:
 
@@ -170,7 +181,7 @@ This will set ~this-system-os~ to the value of ~ID_LIKE~ if that is defined, and
 *** Use 2: encode system details
 What if you want to encode some system information in your LaTeX-produced PDF?
 
-There's a number of template/completion packages; I've been using [[https://github.com/minad/tempel][TempEl]], with a ~templates~ file located at =~/.emacs.d/templates=. So something like (but see TempEl's documentation for the config) in your =init.el=:
+There's a number of template/completion packages; emacsomancer's been using [[https://github.com/minad/tempel][TempEl]], with a ~templates~ file located at =~/.emacs.d/templates=. So something like (but see TempEl's documentation for the config) in your =init.el=:
 
 #+begin_src elisp
 (use-package tempel
