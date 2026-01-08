@@ -132,6 +132,10 @@ Assumes operating system ID to be `OS-ID-NAME'.
                         "256x256"
                         "128x128"))
         (logo-search '()))
+    ;; temp secureblue hack
+    (when (equal os-id-name "secureblue")
+      (setq logo-name "fedora-logo-sprite"))
+    ;; end hack
     (dolist (dir xdg-dirs)
       (when (file-directory-p dir)
         (let ((new-logo-hit
