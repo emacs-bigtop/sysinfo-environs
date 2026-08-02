@@ -2,15 +2,14 @@
 
 ;; System Information and Environs
 
-;; Copyright (C) 2025 ......
+;; Copyright (C) 2025-6 Benjamin Slade
 
-;; Author: ADD ME <addme@email.net>
-;; Maintainer: ADD ME <addme@email.net>
-;; URL: https://addme.com
+;; URL: https://github.com/emacs-bigtop/sysinfo-environs
 ;; Package-Version: 0.1
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "26.1") (org "9.4"))
 ;; Created: March 2025
+;; License: GPL-v3.0
 ;; Keywords: tools
 
 ;; This file is NOT part of GNU Emacs.
@@ -109,11 +108,16 @@ Optional argument `QUOTED' escapes double-quotes in STRINGS."
                                (line-end-position))
                          (forward-line 1))))))
 
+;;;###autoload
+(defun sysinfo-environs-get-pid-daemons ()
+  "Determine the init/daemon manager on this system."
+  (string-trim (shell-command-to-string "ps -p 1 -o comm=")))
+
 ;;;; Functions to create alists from various data sources
 
 ;;;;; /etc/os-release
 ;;;###autoload
-(defun sysinfo-environs--find-logo-path (logo-name os-id-name)
+(defun sysinfo-environs--find-logo-path (logo-name os-id-name host)
   "Find a path to the distributions `LOGO-NAME' image file.
 
 Assumes operating system ID to be `OS-ID-NAME'.
@@ -131,7 +135,8 @@ Assumes operating system ID to be `OS-ID-NAME'.
                         "512x512"
                         "256x256"
                         "128x128"))
-        (logo-search '()))
+        (logo-search '())
+        (host-exec (if host "distrobox-host-exec " "")))
     ;; temp secureblue hack
     (when (equal os-id-name "secureblue")
       (setq logo-name "fedora-logo-sprite"))
@@ -141,7 +146,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
         (let ((new-logo-hit
                (if (executable-find "find")
                     (split-string
-                     (shell-command-to-string (concat "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
+                     (shell-command-to-string (concat host-exec "find " dir " -iname \"*" logo-name "*\" -exec realpath {} \\;")) "\n")
                   (directory-files-recursively dir (concat logo-name ".*")))))
           (when new-logo-hit
             (setq logo-search (append logo-search new-logo-hit ))))))
@@ -198,18 +203,34 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;     )
 
 ;;;###autoload
-(defun sysinfo-environs-parse-os-release ()
+(defun sysinfo-environs-parse-os-release (&optional host)
   "Parse the `/etc/os-release' file into an alist."
-  (let* ((os-release-file
-          (cond ((file-exists-p "/etc/os-release")
-                 "/etc/os-release")
-                ((file-exists-p "/usr/lib/os-release")
-                 "/usr/lib/os-release")
-                (t nil)))
+  (let* ((hostexec (if (and host
+                            (file-exists-p "/run/.containerenv"))
+                       t nil))
+         (os-release-file
+          (if hostexec
+              (cl-flet ((host-file-exists-p
+                      (file)
+                      (shell-command-to-string
+                       (concat "distrobox-host-exec $SHELL -c 'less "
+                               file "'"))))
+                (cond ((and (host-file-exists-p "/etc/os-release")
+                            (shell-command "distrobox-host-exec cp /etc/os-release /tmp/host-os-release"))
+                       "/tmp/host-os-release")
+                      ((and (host-file-exists-p "/usr/lib/os-release")
+                            (shell-command "distrobox-host-exec cp /usr/lib/os-release /tmp/host-os-release"))
+                       "/tmp/os-release")
+                      (t nil)))
+            (cond ((file-exists-p "/etc/os-release")
+                   "/etc/os-release")
+                  ((file-exists-p "/usr/lib/os-release")
+                   "/usr/lib/os-release")
+                  (t nil))))
          (os-release-file (or os-release-file
                               "[file not found]"))
          (os-release-raw (when os-release-file
-                       (sysinfo-environs-file-by-line-into-list
+                           (sysinfo-environs-file-by-line-into-list
                         os-release-file)))
          (os-release
           (cons "*os-release info*"
@@ -230,7 +251,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
     ;; find logo image
     (let ((img-path (if logo-name 
                         (sysinfo-environs--find-logo-path
-                         logo-name os-id-name)
+                         logo-name os-id-name host)
                       nil)))
       (when logo-name
         (setq os-release (nreverse
@@ -256,22 +277,26 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;;;; uname -?
 
 ;;;###autoload
-(defun sysinfo-environs-parse-uname-info ()
+(defun sysinfo-environs-parse-uname-info (&optional host)
   "Create an alist from some `uname' outputs."
   (let ((params '(("KERNEL_SPECS" . "-v")
                   ("KERNEL_RELEASE" . "-r")
                   ("KERNEL_NAME" . "-s")
                   ("OPERATING_SYSTEM" . "-o")
                   ("SYSTEM_NAME" . "-n")))
+        (hostexec (if (and (or host current-prefix-arg)
+                           (file-exists-p "/run/.containerenv"))
+                      "distrobox-host-exec " ""))
         (uname-info '()))
     (cl-loop for (key . value) in params
              do
              (setq uname-info
                   (cons
                    (cons key
-                         (replace-regexp-in-string "\n$" ""
-                                                   (shell-command-to-string
-                                                    (concat "uname " value))))
+                         (replace-regexp-in-string
+                          "\n$" ""
+                          (shell-command-to-string
+                           (concat hostexec "uname " value))))
                    uname-info)))
     (cons "*uname -?*"
           (cl-remove nil uname-info :test 'equal))))
@@ -516,10 +541,12 @@ Assumes operating system ID to be `OS-ID-NAME'.
 
 ;;;;; list of all sources
 (defvar sysinfo-environs-dataset-alist
-  '(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
+  `(("emacs-info" . (sysinfo-environs-emacs-known-sysinfo))
     ("emacs-self-info" . (sysinfo-environs-emacs-self-info))
     ("uname-info" . (sysinfo-environs-parse-uname-info))
     ("os-release-info" . (sysinfo-environs-parse-os-release))
+    ,(when (file-exists-p "/run/.containerenv")
+      '("host-os-release-info" . (sysinfo-environs-parse-os-release t)))
     ("env-vars-info" . (sysinfo-environs-get-all-env))
     ("sys-devices-virtual-dmi-info" . (sysinfo-environs-read-sys-devices-virtual-dmi-ids)))
   "An alist of all of the datasources and some names for them.")
@@ -686,20 +713,26 @@ Should be called with a list of one or more `DATASETS'
 ;;;; (n)E(o)fetch
 
 ;;;###autoload
-(defun sysinfo-environs-neofetch-like (&optional no-logo titlename)
+(defun sysinfo-environs-neofetch-like (&optional no-logo titlename host)
   "Interactive function sort of like (neo|fast)fetch."
-  (interactive)
+  (interactive "P")
+  
   (defalias 'lookup 'sysinfo-environs-look-up-field)
-  (let* ((machine (lookup "sys-devices-virtual-dmi-info" "product_version"))
+  (let* ((which-os-release (if (and (file-exists-p "/run/.containerenv")
+                                    (or host current-prefix-arg))
+                      "host-os-release-info"
+                    "os-release-info"))
+         (machine (lookup "sys-devices-virtual-dmi-info" "product_version"))
          (machine (if (string-empty-p machine)
                       (lookup "sys-devices-virtual-dmi-info" "product_family")
                     machine)))
     (let ((temp-buff-name (or titlename "*(n)E(o)fetch*"))
           (neofetch `(("OS" .
                        ,(concat
-                         (lookup "os-release-info" "PRETTY_NAME")
-                         " "
-                         system-configuration))
+                         (lookup which-os-release "PRETTY_NAME")
+                         ;; " "
+                         ;; system-configuration
+                         ))
                       ("Host" .
                        ,(concat
                          (lookup "sys-devices-virtual-dmi-info" "product_name")
@@ -729,6 +762,7 @@ Should be called with a list of one or more `DATASETS'
                          " ("
                          (lookup "env-vars-info" "XDG_SESSION_TYPE")
                          ")"))
+                      ("Init/daemon-system" . ,(sysinfo-environs-get-pid-daemons))
                       )))
       (get-buffer-create temp-buff-name)
       (with-current-buffer temp-buff-name
@@ -781,12 +815,12 @@ Should be called with a list of one or more `DATASETS'
 ;;;; Interactive convenience functions
 
 ;;;###autoload
-(defun sysinfo-environs-os-release-info-display ()
+(defun sysinfo-environs-os-release-info-display (&optional host)
   "Interactive function to display `/etc/os-release' info."
-  (interactive)
+  (interactive "P")
   (sysinfo-environs-sysinfo
    (list
-    (sysinfo-environs-parse-os-release))
+    (sysinfo-environs-parse-os-release (when (or current-prefix-arg host) t)))
    "*OS Release Info*"
    t))
 
