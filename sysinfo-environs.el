@@ -431,6 +431,18 @@ Assumes operating system ID to be `OS-ID-NAME'.
                      (shell-command-to-string "printenv")))
                    :test 'equal)))
 
+(defun sysinfo-environs-desktop-name-from-dot-desktop (file-path)
+  "Search FILE-PATH for Name, DesktopName, or DesktopNames and return the value."
+  (if (file-exists-p file-path)
+      (with-temp-buffer
+        (insert-file-contents file-path)
+        (goto-char (point-min))
+        (if (re-search-forward "^\\(Name\\|DesktopName\\|DesktopNames\\)=\\(.*\\)$" nil t)
+            (match-string 2)
+          nil))
+    (error "File not found: %s" file-path)))
+
+
 ;;;###autoload
 (defun sysinfo-environs-gui-env ()
   "Return likely GUI environment (i.e., WM/DE)."
@@ -460,7 +472,9 @@ Assumes operating system ID to be `OS-ID-NAME'.
       xdg-session-desktop)
      ((not (or (string-empty-p session-desktop)
                (null session-desktop)))
-      session-desktop)
+      (or (and (file-exists-p session-desktop)
+               (sysinfo-environs-desktop-name-from-dot-desktop session-desktop))
+          session-desktop))
      ;; check for wmctrl...
      (t nil))))
 
