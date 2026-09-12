@@ -306,7 +306,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
 ;;;###autoload
 (defun sysinfo-environs-emacs-known-sysinfo ()
   "Create an alist from the few system variables Emacs knows."
-  (let ((emacs-sysinfo
+  (let ((emacs-sysinfo 
          `(("system-name" .
             ,(if (version< emacs-version "25.1")
                 system-name
@@ -341,6 +341,17 @@ Assumes operating system ID to be `OS-ID-NAME'.
              (cons (symbol-name feat)
                    (format "%s" (eval feat)))
              emacs-self-info)))
+    (let ((emacs-comp-feat
+           (list
+            (cons "native-compilation"
+                  (if (cl-search "NATIVE_COMP" system-configuration-features) "yes" "no"))
+            (cons "garbage-collection"
+                  (if (cl-search "MPS" system-configuration-features)
+                      "MPS (Ravenbrook's Memory Pool System = IGC)"
+                    "Standard Emacs Mark-and-Sweep")))))
+      (dolist (feat emacs-comp-feat)
+        (setq emacs-self-info
+              (cons feat emacs-self-info))))
     (setq emacs-self-info
           (cons
            (cons
