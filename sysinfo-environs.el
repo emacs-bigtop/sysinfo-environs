@@ -348,7 +348,7 @@ Assumes operating system ID to be `OS-ID-NAME'.
             (cons "garbage-collection"
                   (if (cl-search "MPS" system-configuration-features)
                       "MPS (Ravenbrook's Memory Pool System = IGC)"
-                    "Mark-and-Sweep (old Emacs standard)")))))
+                    "Conversative Stop-the-World Mark-and-Sweep (built-in)")))))
       (dolist (feat emacs-comp-feat)
         (setq emacs-self-info
               (cons feat emacs-self-info))))
