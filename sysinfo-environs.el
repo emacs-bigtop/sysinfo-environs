@@ -111,6 +111,7 @@ Optional argument `QUOTED' escapes double-quotes in STRINGS."
 ;;;###autoload
 (defun sysinfo-environs-get-pid-daemons ()
   "Determine the init/daemon manager on this system."
+  ;; look for PID 1:
   (string-trim (shell-command-to-string "ps -p 1 -o comm=")))
 
 ;;;; Functions to create alists from various data sources
